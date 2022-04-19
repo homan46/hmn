@@ -1,0 +1,6 @@
+{
+    "storage":{
+        "type":"sqlite3",
+        "path":"db.sqlite3"
+    }
+}
