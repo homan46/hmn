@@ -49,14 +49,14 @@ type NoteLikeRO interface {
 	GetIndex() int
 }
 
-/*
 type NoteLikeWO interface {
+	EntityLikeWO
 	SetTitle(title string)
 	SetContent(content string)
 	SetParentID(parentID int)
 	SetIndex(index int)
 }
-*/
+
 func NewNoteFrom(nl NoteLikeRO) *Note {
 	newNote := Note{}
 
@@ -72,4 +72,16 @@ func NewNoteFrom(nl NoteLikeRO) *Note {
 	newNote.index = nl.GetIndex()
 
 	return &newNote
+}
+func (n *Note) FillDto(emptyDto NoteLikeWO) error {
+	emptyDto.SetID(n.id)
+	emptyDto.SetCreatedBy(n.createdBy)
+	emptyDto.SetCreatedTime(n.createdTime)
+	emptyDto.SetModifiedBy(n.modifiedBy)
+	emptyDto.SetModifiedTime(n.modifiedTime)
+	emptyDto.SetTitle(n.title)
+	emptyDto.SetContent(n.content)
+	emptyDto.SetParentID(n.parentID)
+	emptyDto.SetIndex(n.index)
+	return nil
 }

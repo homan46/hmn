@@ -60,10 +60,10 @@ type EntityLikeRO interface {
 	//SetUpdate(userID int)
 }
 
-/*
-type EntityEmbedLikeWO interface {
+type EntityLikeWO interface {
 	SetID(id int)
-	SetCreatedBy(userID int, createdTime time.Time)
-	SetModifiedBy(userID int, modifiedTime time.Time)
+	SetCreatedBy(userID int)
+	SetCreatedTime(createdTime time.Time)
+	SetModifiedBy(userID int)
+	SetModifiedTime(modifiedTime time.Time)
 }
-*/

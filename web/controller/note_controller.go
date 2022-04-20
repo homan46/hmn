@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"codeberg.org/rchan/hmn/business"
+	"codeberg.org/rchan/hmn/dto"
 	"codeberg.org/rchan/hmn/model"
 	"github.com/labstack/echo/v4"
 )
@@ -19,15 +20,8 @@ func NewNoteController(b business.BusinessLayer) *NoteController {
 	}
 }
 
-type AddNoteInput struct {
-	Title    string `json:"title"`
-	Content  string `json:"content"`
-	ParentID int    `json:"parentId"`
-	Index    int    `json:"index"`
-}
-
 func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
-	input := new(AddNoteInput)
+	input := new(dto.NoteDto)
 	if err := c.Bind(input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -58,13 +52,21 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	notes, err := n.b.Note().GetAllNote(mycontext)
+
 	if err != nil {
 		tx.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	dtos := make([]dto.NoteEntityDto, 0)
+	for _, n := range notes {
+		dto := dto.NoteEntityDto{}
+		n.FillDto(&dto)
+		dtos = append(dtos, dto)
+	}
+
 	tx.Commit()
-	return c.JSON(http.StatusOK, notes)
+	return c.JSON(http.StatusOK, dtos)
 }
 
 func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
@@ -85,6 +87,9 @@ func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	dto := dto.NoteEntityDto{}
+	note.FillDto(&dto)
+
 	tx.Commit()
-	return c.JSON(http.StatusOK, note)
+	return c.JSON(http.StatusOK, dto)
 }
