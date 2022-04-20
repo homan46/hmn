@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	EntityEmbed
+	Entity
 	userName string
 	password string
 }
@@ -52,7 +52,7 @@ func (u *User) CheckPassword(password string) bool {
 }
 
 type UserLikeRO interface {
-	EntityEmbedLikeRO
+	EntityLikeRO
 	GetUserName() string
 	GetPassword() string
 }
@@ -61,7 +61,7 @@ func NewUserFrom(ul UserLikeRO) *User {
 	newUser := User{}
 	mBy, mTime := ul.GetModifiedBy()
 	cBy, cTime := ul.GetCreatedBy()
-	newUser.EntityEmbed = *NewEntityEmbed(ul.GetID(), mTime, mBy, cTime, cBy)
+	newUser.Entity = *NewEntity(ul.GetID(), mTime, mBy, cTime, cBy)
 	newUser.userName = ul.GetUserName()
 	newUser.password = ul.GetPassword()
 

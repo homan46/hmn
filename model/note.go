@@ -1,7 +1,7 @@
 package model
 
 type Note struct {
-	EntityEmbed
+	Entity
 	title    string
 	content  string
 	parentID *int
@@ -41,7 +41,7 @@ func (n *Note) SetIndex(index int) {
 }
 
 type NoteLikeRO interface {
-	EntityEmbedLikeRO
+	EntityLikeRO
 
 	GetTitle() string
 	GetContent() string
@@ -62,7 +62,7 @@ func NewNoteFrom(nl NoteLikeRO) *Note {
 	mBy, mTime := nl.GetModifiedBy()
 	cBy, cTime := nl.GetCreatedBy()
 
-	newNote.EntityEmbed = *NewEntityEmbed(nl.GetID(), mTime, mBy, cTime, cBy)
+	newNote.Entity = *NewEntity(nl.GetID(), mTime, mBy, cTime, cBy)
 	newNote.title = nl.GetTitle()
 	newNote.content = nl.GetContent()
 	newNote.parentID = nl.GetParentID()

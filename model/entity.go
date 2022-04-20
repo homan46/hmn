@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type EntityEmbed struct {
+type Entity struct {
 	id           int
 	modifiedTime time.Time
 	modifiedBy   int
@@ -10,31 +10,31 @@ type EntityEmbed struct {
 	createdBy    int
 }
 
-func (e *EntityEmbed) GetID() int {
+func (e *Entity) GetID() int {
 	return e.id
 }
-func (e *EntityEmbed) SetID(id int) {
+func (e *Entity) SetID(id int) {
 	e.id = id
 }
 
-func (e *EntityEmbed) GetCreatedBy() (userID int, createdTime time.Time) {
+func (e *Entity) GetCreatedBy() (userID int, createdTime time.Time) {
 	return e.createdBy, e.createdTime
 }
 
-func (e *EntityEmbed) GetModifiedBy() (userID int, modifiedTime time.Time) {
+func (e *Entity) GetModifiedBy() (userID int, modifiedTime time.Time) {
 	return e.modifiedBy, e.modifiedTime
 }
 
-func (e *EntityEmbed) SetUpdate(userID int) {
+func (e *Entity) SetUpdate(userID int) {
 	e.modifiedTime = time.Now().UTC()
 	e.modifiedBy = userID
 }
 
-func NewEntityEmbed(
+func NewEntity(
 	id int,
 	modifiedTime time.Time, modifiedBy int,
-	createdTime time.Time, createdBy int) *EntityEmbed {
-	return &EntityEmbed{
+	createdTime time.Time, createdBy int) *Entity {
+	return &Entity{
 		id:           id,
 		modifiedTime: modifiedTime,
 		modifiedBy:   modifiedBy,
@@ -43,7 +43,7 @@ func NewEntityEmbed(
 	}
 }
 
-type EntityEmbedLikeRO interface {
+type EntityLikeRO interface {
 	GetID() int
 	GetCreatedBy() (userID int, createdTime time.Time)
 	GetModifiedBy() (userID int, modifiedTime time.Time)

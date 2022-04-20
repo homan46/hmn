@@ -51,7 +51,7 @@ func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
 		return err
 	}
 
-	note.EntityEmbed.SetUpdate(*userID)
+	note.Entity.SetUpdate(*userID)
 
 	err = ns.repo.Note().AddNote(c, note)
 
