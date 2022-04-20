@@ -59,9 +59,11 @@ type UserLikeRO interface {
 
 func NewUserFrom(ul UserLikeRO) *User {
 	newUser := User{}
-	mBy, mTime := ul.GetModifiedBy()
-	cBy, cTime := ul.GetCreatedBy()
-	newUser.Entity = *NewEntity(ul.GetID(), mTime, mBy, cTime, cBy)
+	// mBy, mTime := ul.GetModifiedBy()
+	// cBy, cTime := ul.GetCreatedBy()
+	newUser.Entity = *NewEntity(ul.GetID(),
+		ul.GetModifiedTime(), ul.GetModifiedBy(),
+		ul.GetCreatedTime(), ul.GetCreatedBy())
 	newUser.userName = ul.GetUserName()
 	newUser.password = ul.GetPassword()
 

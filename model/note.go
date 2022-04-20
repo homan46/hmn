@@ -59,10 +59,13 @@ type NoteLikeWO interface {
 */
 func NewNoteFrom(nl NoteLikeRO) *Note {
 	newNote := Note{}
-	mBy, mTime := nl.GetModifiedBy()
-	cBy, cTime := nl.GetCreatedBy()
 
-	newNote.Entity = *NewEntity(nl.GetID(), mTime, mBy, cTime, cBy)
+	// mBy, mTime := nl.GetModifiedBy()
+	// cBy, cTime := nl.GetCreatedBy()
+
+	newNote.Entity = *NewEntity(nl.GetID(),
+		nl.GetModifiedTime(), nl.GetModifiedBy(),
+		nl.GetCreatedTime(), nl.GetCreatedBy())
 	newNote.title = nl.GetTitle()
 	newNote.content = nl.GetContent()
 	newNote.parentID = nl.GetParentID()

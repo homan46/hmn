@@ -17,12 +17,20 @@ func (e *Entity) SetID(id int) {
 	e.id = id
 }
 
-func (e *Entity) GetCreatedBy() (userID int, createdTime time.Time) {
-	return e.createdBy, e.createdTime
+func (e *Entity) GetCreatedBy() (userID int) {
+	return e.createdBy
 }
 
-func (e *Entity) GetModifiedBy() (userID int, modifiedTime time.Time) {
-	return e.modifiedBy, e.modifiedTime
+func (e *Entity) GetCreatedTime() (createdTime time.Time) {
+	return e.createdTime
+}
+
+func (e *Entity) GetModifiedBy() (userID int) {
+	return e.modifiedBy
+}
+
+func (e *Entity) GetModifiedTime() (modifiedTime time.Time) {
+	return e.modifiedTime
 }
 
 func (e *Entity) SetUpdate(userID int) {
@@ -45,8 +53,10 @@ func NewEntity(
 
 type EntityLikeRO interface {
 	GetID() int
-	GetCreatedBy() (userID int, createdTime time.Time)
-	GetModifiedBy() (userID int, modifiedTime time.Time)
+	GetCreatedBy() (userID int)
+	GetCreatedTime() (createdTime time.Time)
+	GetModifiedBy() (userID int)
+	GetModifiedTime() (modifiedTime time.Time)
 	//SetUpdate(userID int)
 }
 
