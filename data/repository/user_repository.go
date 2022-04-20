@@ -57,7 +57,7 @@ func (r SqlxUserRepository) GetAllUser(c context.Context) ([]*model.User, error)
 		return nil, err
 	}
 
-	users := make([]*model.User, len(userEntities))
+	users := make([]*model.User, 0)
 	for _, e := range userEntities {
 		users = append(users, model.NewUserFrom(&e))
 	}

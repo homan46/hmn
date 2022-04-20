@@ -63,7 +63,7 @@ func (r SqlxNoteRepository) GetAllNote(c context.Context) ([]*model.Note, error)
 		return nil, err
 	}
 
-	notes := make([]*model.Note, len(noteEntities))
+	notes := make([]*model.Note, 0)
 	for _, e := range noteEntities {
 		notes = append(notes, model.NewNoteFrom(&e))
 	}
