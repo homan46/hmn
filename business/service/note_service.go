@@ -16,6 +16,7 @@ var (
 )
 
 type NoteService interface {
+	// only title,content,parentID and index in note parameter is used
 	AddNote(c context.Context, note *model.Note) error
 	GetNote(c context.Context, id int) (*model.Note, error)
 	GetAllNote(c context.Context) ([]*model.Note, error)

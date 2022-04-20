@@ -55,6 +55,10 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				datetime(),0,
 				datetime(),0,
 				"system",""
+			),(
+				datetime(),0,
+				datetime(),0,
+				"admin",""
 			);
 			create table note (
 				id integer primary key autoincrement,

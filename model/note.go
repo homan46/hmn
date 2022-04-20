@@ -49,13 +49,14 @@ type NoteLikeRO interface {
 	GetIndex() int
 }
 
+/*
 type NoteLikeWO interface {
 	SetTitle(title string)
 	SetContent(content string)
 	SetParentID(parentID int)
 	SetIndex(index int)
 }
-
+*/
 func NewNoteFrom(nl NoteLikeRO) *Note {
 	newNote := Note{}
 	mBy, mTime := nl.GetModifiedBy()

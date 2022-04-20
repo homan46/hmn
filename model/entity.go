@@ -45,8 +45,15 @@ func NewEntityEmbed(
 
 type EntityEmbedLikeRO interface {
 	GetID() int
-	//SetID(id int)
 	GetCreatedBy() (userID int, createdTime time.Time)
 	GetModifiedBy() (userID int, modifiedTime time.Time)
 	//SetUpdate(userID int)
 }
+
+/*
+type EntityEmbedLikeWO interface {
+	SetID(id int)
+	SetCreatedBy(userID int, createdTime time.Time)
+	SetModifiedBy(userID int, modifiedTime time.Time)
+}
+*/
