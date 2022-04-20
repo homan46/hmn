@@ -39,7 +39,7 @@ func NewNoteService(repo repository.RepositoryLayer) NoteService {
 // only title,content,parentID and index in note parameter is used
 func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
 	//validation
-	if *note.GetParentID() < 1 {
+	if note.GetParentID() < 1 {
 		return ErrInvalidParent
 	}
 	if note.GetIndex() < 0 {

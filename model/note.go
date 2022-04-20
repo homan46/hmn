@@ -4,7 +4,7 @@ type Note struct {
 	Entity
 	title    string
 	content  string
-	parentID *int
+	parentID int
 	index    int
 }
 
@@ -24,12 +24,12 @@ func (n *Note) SetContent(content string) {
 	n.content = content
 }
 
-func (n *Note) GetParentID() *int {
+func (n *Note) GetParentID() int {
 	return n.parentID
 }
 
 func (n *Note) SetParentID(parentID int) {
-	n.parentID = &parentID
+	n.parentID = parentID
 }
 
 func (n *Note) GetIndex() int {
@@ -45,7 +45,7 @@ type NoteLikeRO interface {
 
 	GetTitle() string
 	GetContent() string
-	GetParentID() *int
+	GetParentID() int
 	GetIndex() int
 }
 

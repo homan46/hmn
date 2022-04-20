@@ -69,8 +69,8 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 			
 				title text not null,
 				content text not null,
-				parent_id integer,
-				idx integer
+				parent_id integer not null,
+				idx integer  not null
 			);
 			insert into note (
 				id,
@@ -83,7 +83,7 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				datetime(),(select id from user where user_name = "system"),
 				datetime(),(select id from user where user_name = "system"),
 				"root","",
-				null,0
+				0,0
 			);
 			
 			insert into system_config (key,value) values (
