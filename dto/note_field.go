@@ -40,6 +40,6 @@ type noteIndexField struct {
 func (n *noteIndexField) GetIndex() int {
 	return n.Index
 }
-func (n *noteIndexField) SetParentID(index int) {
+func (n *noteIndexField) SetIndex(index int) {
 	n.Index = index
 }
