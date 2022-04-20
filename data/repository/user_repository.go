@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
 
+	"codeberg.org/rchan/hmn/dto"
 	"codeberg.org/rchan/hmn/helper"
 	"codeberg.org/rchan/hmn/model"
 	"github.com/jmoiron/sqlx"
@@ -29,7 +29,7 @@ func (r SqlxUserRepository) GetUser(c context.Context, id int) (*model.User, err
 	}
 
 	//user := model.User{}
-	userEntity := UserEntity{}
+	userEntity := dto.UserEntityDTO{}
 	err = tx.Get(&userEntity, "select * from user where id = ?", id)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (r SqlxUserRepository) GetAllUser(c context.Context) ([]*model.User, error)
 	}
 
 	//noteEntities := model.Note{}
-	userEntities := []UserEntity{}
+	userEntities := []dto.UserEntityDTO{}
 
 	err = tx.Select(&userEntities, `
 	select * from note
@@ -125,32 +125,4 @@ func (r SqlxUserRepository) DeleteUser(c context.Context, id int) error {
 	}
 
 	return nil
-}
-
-type UserEntity struct {
-	ID           int        `db:"id"`
-	ModifiedTime *time.Time `db:"modified_time"`
-	ModifiedBy   int        `db:"modified_by"`
-	CreatedTime  *time.Time `db:"created_time"`
-	CreatedBy    int        `db:"created_by"`
-
-	UserName string `db:"user_name"`
-	Password string `db:"password"`
-}
-
-func (e *UserEntity) GetID() int {
-	return e.ID
-}
-func (e *UserEntity) GetCreatedBy() (userID int, createdTime time.Time) {
-	return e.CreatedBy, *e.CreatedTime
-}
-func (e *UserEntity) GetModifiedBy() (userID int, modifiedTime time.Time) {
-	return e.ModifiedBy, *e.ModifiedTime
-}
-
-func (n *UserEntity) GetUserName() string {
-	return n.UserName
-}
-func (n *UserEntity) GetPassword() string {
-	return n.Password
 }

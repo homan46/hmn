@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
 
+	"codeberg.org/rchan/hmn/dto"
 	"codeberg.org/rchan/hmn/helper"
 
 	//"codeberg.org/rchan/hmn/data"
@@ -30,8 +30,7 @@ func (r SqlxNoteRepository) GetNote(c context.Context, id int) (*model.Note, err
 		return nil, errors.New("get Context data fail")
 	}
 
-	//noteEntity := model.Note{}
-	noteEntity := NoteEntity{}
+	noteEntity := dto.NoteEntityDto{}
 
 	err = tx.Get(&noteEntity, `
 	select created_time,created_by,modified_time,modified_by,
@@ -54,7 +53,7 @@ func (r SqlxNoteRepository) GetAllNote(c context.Context) ([]*model.Note, error)
 	}
 
 	//noteEntities := model.Note{}
-	noteEntities := []NoteEntity{}
+	noteEntities := []dto.NoteEntityDto{}
 
 	err = tx.Select(&noteEntities, `
 	select created_time,created_by,modified_time,modified_by,
@@ -131,39 +130,4 @@ func (r SqlxNoteRepository) DeleteNote(c context.Context, id int) error {
 	}
 
 	return nil
-}
-
-type NoteEntity struct {
-	ID           int        `db:"id"`
-	ModifiedTime *time.Time `db:"modified_time"`
-	ModifiedBy   int        `db:"modified_by"`
-	CreatedTime  *time.Time `db:"created_time"`
-	CreatedBy    int        `db:"created_by"`
-
-	Title    string `db:"title"`
-	Content  string `db:"content"`
-	ParentID *int   `db:"parent_id"`
-	Index    int    `db:"idx"`
-}
-
-func (e *NoteEntity) GetID() int {
-	return e.ID
-}
-func (e *NoteEntity) GetCreatedBy() (userID int, createdTime time.Time) {
-	return e.CreatedBy, *e.CreatedTime
-}
-func (e *NoteEntity) GetModifiedBy() (userID int, modifiedTime time.Time) {
-	return e.ModifiedBy, *e.ModifiedTime
-}
-func (n *NoteEntity) GetTitle() string {
-	return n.Title
-}
-func (n *NoteEntity) GetContent() string {
-	return n.Content
-}
-func (n *NoteEntity) GetParentID() *int {
-	return n.ParentID
-}
-func (n *NoteEntity) GetIndex() int {
-	return n.Index
 }
