@@ -6,8 +6,6 @@ import (
 
 	"codeberg.org/rchan/hmn/dto"
 	"codeberg.org/rchan/hmn/helper"
-
-	//"codeberg.org/rchan/hmn/data"
 	"codeberg.org/rchan/hmn/model"
 	"github.com/jmoiron/sqlx"
 )
@@ -35,8 +33,7 @@ func (r SqlxNoteRepository) GetNote(c context.Context, id int) (*model.Note, err
 	noteEntity := dto.NoteEntityDto{}
 
 	err = tx.Get(&noteEntity, `
-	select created_time,created_by,modified_time,modified_by,
-	title,content,parent_id,idx
+	select *
 	from note 
 	where id = ?`, id)
 	if err != nil {
@@ -58,8 +55,7 @@ func (r SqlxNoteRepository) GetAllNote(c context.Context) ([]*model.Note, error)
 	noteEntities := []dto.NoteEntityDto{}
 
 	err = tx.Select(&noteEntities, `
-	select created_time,created_by,modified_time,modified_by,
-	title,content,parent_id,idx
+	select *
 	from note `)
 	if err != nil {
 		return nil, err
