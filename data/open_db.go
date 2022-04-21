@@ -48,14 +48,17 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				password text not null
 			);
 			insert into user (
+				id,
 				created_time,created_by,
 				modified_time,modified_by,
 				user_name, password
 			) values (
+				0,
 				datetime(),0,
 				datetime(),0,
 				"system",""
 			),(
+				1,
 				datetime(),0,
 				datetime(),0,
 				"admin",""
@@ -80,8 +83,8 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				parent_id,idx
 			)values(
 				1,
-				datetime(),(select id from user where user_name = "system"),
-				datetime(),(select id from user where user_name = "system"),
+				datetime(),0,
+				datetime(),0,
 				"root","",
 				0,0
 			);
