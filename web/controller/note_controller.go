@@ -29,7 +29,7 @@ func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 	model := model.Note{}
 	model.SetTitle(input.Title)
 	model.SetContent(input.Content)
-	model.SetParentID(input.Index)
+	model.SetParentID(input.ParentID)
 	model.SetIndex(input.Index)
 
 	mycontext, tx, err := n.b.GetContextFor(1)
