@@ -28,8 +28,9 @@ func New(bl business.BusinessLayer) *echo.Echo {
 
 	noteRoute := v1.Group("/note")
 	noteRoute.GET("/:id", notec.GetNoteEndpoint)
-	noteRoute.GET("/", notec.GetAllNoteEndpoint)
-	noteRoute.POST("/", notec.AddNoteEndpoint)
+	noteRoute.GET("", notec.GetAllNoteEndpoint)
+	noteRoute.POST("", notec.AddNoteEndpoint)
+	noteRoute.PUT("", notec.UpdateNoteEndpoint)
 
 	return e
 }
