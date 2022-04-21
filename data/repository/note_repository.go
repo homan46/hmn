@@ -18,6 +18,8 @@ type NoteRepository interface {
 	AddNote(c context.Context, note *model.Note) error
 	UpdateNote(c context.Context, note *model.Note) error
 	DeleteNote(c context.Context, id int) error
+
+	GetNoteUnder(c context.Context, rootNoteID int) ([]*model.Note, error)
 }
 
 type SqlxNoteRepository struct {
@@ -130,4 +132,46 @@ func (r SqlxNoteRepository) DeleteNote(c context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int) ([]*model.Note, error) {
+	_, tx, err := helper.ExtractContext(c)
+	if err != nil {
+		return nil, errors.New("get Context data fail")
+	}
+
+	//noteEntities := model.Note{}
+	noteEntities := []dto.NoteEntityDto{}
+
+	err = tx.Select(&noteEntities, `	
+		WITH RECURSIVE
+		note_tree (
+			id ,
+			created_time ,
+			created_by	,
+			modified_time ,
+			modified_by ,
+
+			title ,
+			content ,
+			parent_id ,
+			idx 
+		) as (
+			select * from note where id = ?
+			union
+			select n.* from note n join note_tree t 
+			on n.parent_id  = t.id
+		)
+		select * from note_tree;`, rootNoteID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	notes := make([]*model.Note, 0)
+	for _, e := range noteEntities {
+		notes = append(notes, model.NewNoteFrom(&e))
+	}
+
+	return notes, nil
 }

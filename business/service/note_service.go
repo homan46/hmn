@@ -20,6 +20,8 @@ type NoteService interface {
 	AddNote(c context.Context, note *model.Note) error
 	GetNote(c context.Context, id int) (*model.Note, error)
 	GetAllNote(c context.Context) ([]*model.Note, error)
+	//will include the root note as well
+	GetNoteUnder(c context.Context, rootID int) ([]*model.Note, error)
 	UpdateNote(c context.Context, note *model.Note) error
 	DeleteNote(c context.Context, id int) error
 
@@ -67,6 +69,11 @@ func (ns *NoteServiceImpl) GetNote(c context.Context, id int) (*model.Note, erro
 func (ns *NoteServiceImpl) GetAllNote(c context.Context) ([]*model.Note, error) {
 	return ns.repo.Note().GetAllNote(c)
 }
+
+func (ns *NoteServiceImpl) GetNoteUnder(c context.Context, rootID int) ([]*model.Note, error) {
+	return ns.repo.Note().GetNoteUnder(c, rootID)
+}
+
 func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error {
 	return ns.repo.Note().UpdateNote(c, note)
 }

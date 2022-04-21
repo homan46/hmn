@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/dto"
@@ -47,11 +48,31 @@ func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 }
 
 func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
+	rootIDStr := c.QueryParam("rootId")
+	rootIDStr = strings.Trim(rootIDStr, " ")
+
+	var rootID int = 0
+	var useUnder = false
+	if rootIDStr != "" {
+		var err error
+		rootID, err = strconv.Atoi(rootIDStr)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		useUnder = true
+	}
+
 	mycontext, tx, err := n.b.GetContextFor(1)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	notes, err := n.b.Note().GetAllNote(mycontext)
+
+	var notes []*model.Note
+	if useUnder {
+		notes, err = n.b.Note().GetNoteUnder(mycontext, rootID)
+	} else {
+		notes, err = n.b.Note().GetAllNote(mycontext)
+	}
 
 	if err != nil {
 		tx.Rollback()
