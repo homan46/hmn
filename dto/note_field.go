@@ -43,3 +43,14 @@ func (n *noteIndexField) GetIndex() int {
 func (n *noteIndexField) SetIndex(index int) {
 	n.Index = index
 }
+
+type noteChildrenField[T any] struct {
+	Children []*T `json:"children"`
+}
+
+func (n *noteChildrenField[T]) GetChildren() []*T {
+	return n.Children
+}
+func (n *noteChildrenField[T]) SetChildren(children []*T) {
+	n.Children = children
+}

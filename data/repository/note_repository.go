@@ -17,6 +17,8 @@ type NoteRepository interface {
 	UpdateNote(c context.Context, note *model.Note) error
 	DeleteNote(c context.Context, id int) error
 
+	// return root note and all note under it
+	// the result is sorted by depth so root note is always the first
 	GetNoteUnder(c context.Context, rootNoteID int) ([]*model.Note, error)
 }
 
@@ -142,23 +144,36 @@ func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int) ([]*
 	err = tx.Select(&noteEntities, `	
 		WITH RECURSIVE
 		note_tree (
+			depth,
 			id ,
 			created_time ,
 			created_by	,
 			modified_time ,
 			modified_by ,
-
+		
 			title ,
 			content ,
 			parent_id ,
 			idx 
 		) as (
-			select * from note where id = ?
+			select 0 as depth, * from note where id = ?
 			union
-			select n.* from note n join note_tree t 
+			select depth+1 ,n.* from note n join note_tree t 
 			on n.parent_id  = t.id
 		)
-		select * from note_tree;`, rootNoteID)
+		select  
+			id ,
+			created_time ,
+			created_by	,
+			modified_time ,
+			modified_by ,
+		
+			title ,
+			content ,
+			parent_id ,
+			idx 
+		from note_tree order by depth;
+	`, rootNoteID) //TODO: add ordering for each layer
 
 	if err != nil {
 		return nil, err

@@ -48,11 +48,12 @@ func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 }
 
 func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
+	//handle rootId query parameter
 	rootIDStr := c.QueryParam("rootId")
 	rootIDStr = strings.Trim(rootIDStr, " ")
 
-	var rootID int = 0
-	var useUnder = false
+	rootID := 0
+	useUnder := false
 	if rootIDStr != "" {
 		var err error
 		rootID, err = strconv.Atoi(rootIDStr)
@@ -62,6 +63,19 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 		useUnder = true
 	}
 
+	//handle tree query parameter
+	treeStr := c.QueryParam("tree")
+	treeStr = strings.Trim(treeStr, " ")
+	useTree := false
+
+	if treeStr != "" {
+		if treeStr != "1" {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid value for query parameter 'tree' ")
+		}
+		useTree = true
+	}
+
+	//get context
 	mycontext, tx, err := n.b.GetContextFor(1)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -79,15 +93,42 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	dtos := make([]dto.NoteEntityDto, 0)
-	for _, n := range notes {
-		dto := dto.NoteEntityDto{}
-		n.FillDto(&dto)
-		dtos = append(dtos, dto)
-	}
+	if useTree {
+		///TODO: worlking on this
+		dtos := make([]*dto.NoteEntityTreeDto, 0)
+		for _, n := range notes {
+			dto1 := dto.NoteEntityTreeDto{}
+			n.FillDto(&dto1)
+			dto1.Children = make([]*dto.NoteEntityTreeDto, 0)
 
-	tx.Commit()
-	return c.JSON(http.StatusOK, dtos)
+			dtos = append(dtos, &dto1)
+		}
+
+		treeRootNote := dtos[0]
+
+		//dtos is sorted by depth so just one go should be find
+		for _, fromAll := range dtos {
+			for _, fromTree := range treeRootNote.Flatten() {
+				if fromTree.GetID() == fromAll.GetParentID() {
+					fromTree.Children = append(fromTree.Children, fromAll)
+				}
+			}
+		}
+
+		tx.Commit()
+		return c.JSON(http.StatusOK, treeRootNote)
+
+	} else {
+		dtos := make([]dto.NoteEntityDto, 0)
+		for _, n := range notes {
+			dto := dto.NoteEntityDto{}
+			n.FillDto(&dto)
+			dtos = append(dtos, dto)
+		}
+
+		tx.Commit()
+		return c.JSON(http.StatusOK, dtos)
+	}
 }
 
 func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
