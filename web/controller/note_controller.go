@@ -156,6 +156,43 @@ func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
 	return c.JSON(http.StatusOK, dto)
 }
 
+func (n *NoteController) UpdateNoteEndpoint(c echo.Context) error {
+	idStr := c.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	//bind json body
+	input := new(dto.NoteDto)
+	if err := c.Bind(input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(1)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	note := model.Note{}
+	note.SetID(id)
+	note.SetTitle(input.Title)
+	note.SetContent(input.Content)
+	note.SetParentID(input.ParentID)
+	note.SetIndex(input.Index)
+
+	err = n.b.Note().UpdateNote(mycontext, &note)
+	if err != nil {
+		tx.Rollback()
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	tx.Commit()
+	return c.NoContent(http.StatusOK)
+
+}
+
 
 func (n *NoteController) DeleteNoteEndpoint(c echo.Context) error {
 	idStr := c.Param("id")

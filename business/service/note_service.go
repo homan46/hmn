@@ -26,7 +26,7 @@ type NoteService interface {
 	UpdateNote(c context.Context, note *model.Note) error
 	DeleteNote(c context.Context, id int) error
 
-	MoveNote(c context.Context, id int, parentID int, index int) error
+	//MoveNote(c context.Context, id int, parentID int, index int) error
 }
 
 type NoteServiceImpl struct {
@@ -76,7 +76,37 @@ func (ns *NoteServiceImpl) GetNoteUnder(c context.Context, rootID int) ([]*model
 }
 
 func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error {
-	return ns.repo.Note().UpdateNote(c, note)
+
+	oldValue, err := ns.repo.Note().GetNote(c, note.GetID())
+	if err != nil {
+		return err
+	}
+
+	//TODO: should  not move under its children
+
+	//update title and content first
+	oldValue.SetTitle(note.GetTitle())
+	oldValue.SetContent(note.GetContent())
+
+	err = ns.repo.Note().UpdateNote(c, oldValue)
+	if err != nil {
+		return err
+	}
+
+	//update position
+	if oldValue.GetParentID() != note.GetParentID() || oldValue.GetIndex() != note.GetIndex() {
+		//do nothing
+	} else {
+		err = ns.moveNote(c, oldValue.GetID(), note.GetParentID(), note.GetIndex())
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+
+}
 }
 
 func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
@@ -85,6 +115,133 @@ func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
 	}
 	return ns.repo.Note().DeleteNote(c, id)
 }
-func (ns *NoteServiceImpl) MoveNote(c context.Context, id int, parentID int, index int) error {
-	return errors.New("not implemented")
+
+func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, index int) error {
+	note, err := ns.repo.Note().GetNote(c, id)
+	if err != nil {
+		return err
+	}
+
+	//check new parent exist
+	_, err = ns.repo.Note().GetNote(c, parentID)
+	if err != nil {
+		return err
+	}
+
+	if note.GetParentID() != parentID {
+		//TODO: check move under itself
+		thisAndUnder, err := ns.repo.Note().GetNoteUnder(c, id)
+
+		for _, child := range thisAndUnder[1:] {
+			if parentID == child.GetID() {
+				return errors.New("new parent is child")
+			}
+		}
+
+		//index -1 to all the old sibling that is after current note
+		updateWaitList := make([]*model.Note, 0)
+
+		oldSibling, err := ns.GetNoteUnder(c, note.GetParentID())
+		if err != nil {
+			return err
+		}
+		sort.Slice(oldSibling[1:], func(i, j int) bool {
+			return oldSibling[i+1].GetIndex() < oldSibling[j+1].GetIndex()
+		})
+
+		for _, sib := range oldSibling[1:] {
+			if sib.GetIndex() > note.GetIndex() {
+				sib.SetIndex(sib.GetIndex() - 1)
+				updateWaitList = append(updateWaitList, sib)
+			}
+		}
+
+		//index + 1 to all the new sibling that is after current note
+		newSibling, err := ns.GetNoteUnder(c, parentID)
+		if err != nil {
+			return err
+		}
+		sort.Slice(newSibling[1:], func(i, j int) bool {
+			return newSibling[i+1].GetIndex() < newSibling[j+1].GetIndex()
+		})
+
+		for _, sib := range newSibling[1:] {
+			if sib.GetIndex() > index {
+				sib.SetIndex(sib.GetIndex() + 1)
+				updateWaitList = append(updateWaitList, sib)
+			}
+		}
+
+		note.SetIndex(index)
+		note.SetParentID(parentID)
+
+		//ns.repo.Note().UpdateNote(c, note)
+		updateWaitList = append(updateWaitList, note)
+
+		for _, n := range updateWaitList {
+			err = ns.repo.Note().UpdateNote(c, n)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+
+	} else {
+		updateWaitList := make([]*model.Note, 0)
+
+		oldIdx := note.GetIndex()
+		newIdx := index
+
+		sibling, err := ns.GetNoteUnder(c, note.GetParentID())
+		if err != nil {
+			return err
+		}
+		sort.Slice(sibling[1:], func(i, j int) bool {
+			return sibling[i+1].GetIndex() < sibling[j+1].GetIndex()
+		})
+
+		if newIdx < oldIdx {
+			//move front,
+			//all between two Index  + 1
+
+			for i, n := range sibling[1:] {
+				if i >= newIdx && i < oldIdx {
+					n.SetIndex(n.GetIndex() + 1)
+					updateWaitList = append(updateWaitList, n)
+				}
+			}
+
+			note.SetIndex(index)
+			note.SetParentID(parentID)
+			updateWaitList = append(updateWaitList, note)
+
+		} else if newIdx > oldIdx {
+			//move back,
+			//all between two Index  - 1
+			for i, n := range sibling[1:] {
+				if i >= newIdx && i < oldIdx {
+					n.SetIndex(n.GetIndex() - 1)
+					updateWaitList = append(updateWaitList, n)
+				}
+			}
+
+			note.SetIndex(index)
+			note.SetParentID(parentID)
+			updateWaitList = append(updateWaitList, note)
+
+		} else {
+			return nil
+		}
+
+		for _, n := range updateWaitList {
+			err = ns.repo.Note().UpdateNote(c, n)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+
+	}
+
 }
