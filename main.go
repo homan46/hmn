@@ -19,6 +19,5 @@ func main() {
 	db := data.OpenDB(conf)
 	business := business.NewBusunessLayer(db)
 	server := web.New(business)
-	server.Logger.Debug()
 	server.Logger.Fatal(server.Start(":8080"))
 }

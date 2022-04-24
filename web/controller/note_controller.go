@@ -140,7 +140,7 @@ func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
 
 	mycontext, tx, err := n.b.GetContextFor(1)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	note, err := n.b.Note().GetNote(mycontext, id)
