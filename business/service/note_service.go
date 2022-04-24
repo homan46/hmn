@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"sort"
 
 	"codeberg.org/rchan/hmn/constant"
 	"codeberg.org/rchan/hmn/data/repository"
@@ -14,6 +15,7 @@ var (
 	ErrInvalidActionOnRoot = errors.New("cannot do action on root")
 	ErrInvalidParent       = errors.New("parent is invalid")
 	ErrInvalidIndex        = errors.New("index is invalid")
+	ErrFieldType           = errors.New("field type mismatch")
 )
 
 type NoteService interface {
@@ -24,6 +26,7 @@ type NoteService interface {
 	//will include the root note as well
 	GetNoteUnder(c context.Context, rootID int) ([]*model.Note, error)
 	UpdateNote(c context.Context, note *model.Note) error
+	PatchNote(c context.Context, id int, input map[string]interface{}) error
 	DeleteNote(c context.Context, id int) error
 
 	//MoveNote(c context.Context, id int, parentID int, index int) error
@@ -119,6 +122,80 @@ func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error
 	return nil
 
 }
+
+func (ns *NoteServiceImpl) PatchNote(c context.Context, id int, input map[string]interface{}) error {
+
+	oldValue, err := ns.repo.Note().GetNote(c, id)
+	newValue := *oldValue
+
+	newValueWithoutPositionChange := *oldValue
+
+	if err != nil {
+		return err
+	}
+
+	//TODO: should  not move under its children
+
+	positionChange := false
+
+	for field, value := range input {
+		switch field {
+		case "title":
+			v, ok := value.(string)
+			if !ok {
+				return ErrFieldType
+			}
+			newValue.SetTitle(v)
+			newValueWithoutPositionChange.SetTitle(v)
+			break
+		case "content":
+			v, ok := value.(string)
+			if !ok {
+				return ErrFieldType
+			}
+			newValue.SetContent(v)
+			newValueWithoutPositionChange.SetContent(v)
+			break
+		case "parentId":
+			v, ok := value.(int)
+			if !ok {
+				return ErrFieldType
+			}
+			if oldValue.GetParentID() != v {
+				positionChange = true
+			}
+			newValue.SetParentID(v)
+			break
+		case "index":
+			v, ok := value.(int)
+			if !ok {
+				return ErrFieldType
+			}
+			if oldValue.GetIndex() != v {
+				positionChange = true
+			}
+			newValue.SetIndex(v)
+			break
+		}
+	}
+
+	err = ns.repo.Note().UpdateNote(c, &newValueWithoutPositionChange)
+	if err != nil {
+		return err
+	}
+
+	if !positionChange {
+		return nil
+	}
+
+	//update position
+
+	err = ns.moveNote(c, oldValue.GetID(), newValue.GetParentID(), newValue.GetIndex())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {

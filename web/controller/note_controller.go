@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,6 +25,7 @@ func NewNoteController(b business.BusinessLayer) *NoteController {
 
 func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 	input := new(dto.NoteDto)
+
 	if err := c.Bind(input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -193,6 +196,41 @@ func (n *NoteController) UpdateNoteEndpoint(c echo.Context) error {
 
 }
 
+func (n *NoteController) PatchNoteEndpoint(c echo.Context) error {
+
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	body, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	inputMap := make(map[string]interface{})
+	err = json.Unmarshal(body, &inputMap)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(1)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = n.b.Note().PatchNote(mycontext, id, inputMap)
+	if err != nil {
+		tx.Rollback()
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	tx.Commit()
+
+	return nil
+}
 
 func (n *NoteController) DeleteNoteEndpoint(c echo.Context) error {
 	idStr := c.Param("id")
