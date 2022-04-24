@@ -30,7 +30,7 @@ func New(bl business.BusinessLayer) *echo.Echo {
 	noteRoute.GET("/:id", notec.GetNoteEndpoint)
 	noteRoute.GET("", notec.GetAllNoteEndpoint)
 	noteRoute.POST("", notec.AddNoteEndpoint)
-	noteRoute.PUT("", notec.UpdateNoteEndpoint)
+	noteRoute.DELETE("/:id", notec.DeleteNoteEndpoint)
 
 	return e
 }

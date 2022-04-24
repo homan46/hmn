@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"codeberg.org/rchan/hmn/constant"
 	"codeberg.org/rchan/hmn/data/repository"
 	"codeberg.org/rchan/hmn/helper"
 	"codeberg.org/rchan/hmn/model"
@@ -77,8 +78,9 @@ func (ns *NoteServiceImpl) GetNoteUnder(c context.Context, rootID int) ([]*model
 func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error {
 	return ns.repo.Note().UpdateNote(c, note)
 }
+
 func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
-	if id == 1 {
+	if id == constant.RootNoteID {
 		return ErrInvalidActionOnRoot
 	}
 	return ns.repo.Note().DeleteNote(c, id)

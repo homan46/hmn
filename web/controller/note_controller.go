@@ -155,3 +155,28 @@ func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
 	tx.Commit()
 	return c.JSON(http.StatusOK, dto)
 }
+
+
+func (n *NoteController) DeleteNoteEndpoint(c echo.Context) error {
+	idStr := c.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(1)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = n.b.Note().DeleteNote(mycontext, id)
+	if err != nil {
+		tx.Rollback()
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	tx.Commit()
+	return c.NoContent(http.StatusNoContent)
+
+}
