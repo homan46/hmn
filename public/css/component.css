@@ -1,0 +1,46 @@
+* {
+    box-sizing: border-box;
+  }
+
+.main-container{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.navigation-bar{
+    aaposition: absolute;
+    top: 0;
+    bottom: 0;
+
+    float:left;
+    border:solid 1px black;
+    height: 20%;
+    
+}
+
+.navigation-bar  ul {
+    asdmargin-left: 1em;
+    margin: 0;
+    padding: 0;
+    padding-left:1em;
+    
+}
+.navigation-bar  li {
+    list-style-type: none;
+}
+
+
+.note-editor{
+    aaposition: absolute;
+    top: 0;
+    bottom: 0;
+
+    float:left;
+    height: 100%;
+    width: 78%;
+    
+}
+

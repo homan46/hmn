@@ -14,6 +14,9 @@ func New(bl business.BusinessLayer) *echo.Echo {
 	e := echo.New()
 
 	e.Static("/", "./public/html")
+	e.Static("/js", "./public/js")
+	e.Static("/css", "./public/css")
+	e.Static("/lib", "./public/lib")
 
 	v1 := e.Group("/api/v1")
 	v1.GET("/ping", func(c echo.Context) error {

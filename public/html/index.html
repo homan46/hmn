@@ -1,13 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hmn</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
+    <link rel="stylesheet" href="/css/component.css">
+
+    <script type="module" >
+        import { html, render } from 'https://unpkg.com/htm/preact/index.mjs?module'
+        import {App} from '/js/component.js'
+
+        import {NoteService} from '/js/service/service.js'
+
+        window.ns = new NoteService()
+
+        render(html`<${App}/>`, document.body);
+    </script>
 </head>
 <body>
-    <h1>Hello</h1>
+    
 </body>
 </html>

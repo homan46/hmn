@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        window.onload = function(){
+            var createButton = document.getElementById("createFormSubmitBtn")
+            var createForm = document.getElementById("createForm")
+
+            var updateButton = document.getElementById("updateFormSubmitBtn")
+            var updateForm = document.getElementById("updateForm")
+
+            var deleteButton = document.getElementById("deleteFormSubmitBtn")
+            var deleteForm = document.getElementById("deleteForm")
+
+            createButton.addEventListener('click', (e) => {
+                var formData = new FormData(createForm);
+                
+                var data = {}
+                for(var [key,val] of formData.entries()){
+                    if (key === "parentId"){
+                        data[key] = parseInt(val)
+                    } else {
+                        data[key] = val
+                    }
+                }
+                console.log(data)
+                fetch("/api/v1/note",{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    body: JSON.stringify(data)
+                }).then((res)=>{
+                    console.log(res)
+                })
+
+            })
+
+            updateButton.addEventListener('click', (e) => {
+                var formData = new FormData(updateForm);
+                
+                var data = {}
+                for(var [key,val] of formData.entries()){
+                    if (key === "parentId" || key === "id"|| key === "index" ){
+                        data[key] = parseInt(val)
+                    } else {
+                        data[key] = val
+                    }
+                }
+                console.log(data)
+                fetch(`/api/v1/note/${data["id"]}`,{
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    body: JSON.stringify(data)
+                }).then((res)=>{
+                    console.log(res)
+                })
+
+            })
+
+            deleteButton.addEventListener('click', (e) => {
+                var formData = new FormData(deleteForm);
+                
+                var data = {}
+                for(var [key,val] of formData.entries()){
+                    if (key === "parentId" || key === "id"){
+                        data[key] = parseInt(val)
+                    } else {
+                        data[key] = val
+                    }
+                }
+                console.log(data)
+                fetch(`/api/v1/note/${data["id"]}`,{
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    },
+                    //body: JSON.stringify(data)
+                }).then((res)=>{
+                    console.log(res)
+                })
+
+            })
+            
+
+            
+
+        }
+    </script>
+</head>
+<body>
+    <div id="display">
+        <div id="treeContainer">
+
+        </div>
+        <input id="loadButton" type="button" value="Load"/>
+        <script>
+            var loadButton = document.getElementById("loadButton")
+
+            loadButton.addEventListener('click', (e) => {
+                fetch(`/api/v1/note`,{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    }
+                }).then((res)=>{
+                    console.log(res)
+                    return res.json()
+                }).then((json)=>{
+                    var treeContainer = document.getElementById("treeContainer")
+                    console.log(json)
+                    
+                    treeContainer.innerHTML = JSON.stringify(json)
+                })
+
+            })
+
+        </script>
+    </div>
+    
+    
+
+
+    <h5>Create Note</h5>
+    <form id="createForm" action="/api/v1/note" method="post">
+        <fieldset>
+            <label>ParentID</label>
+            <br/>
+            <input type="number" name="parentId"/>
+            <br/>
+
+            <label>Title</label>
+            <br/>
+            <input type="text" name="title"/>
+            <br/>
+
+            <label>Content</label>
+            <br/>
+            <textarea name="content"></textarea>
+        </fieldset>
+        <input id="createFormSubmitBtn"  type="button" value="go"/>
+    </form>
+
+    <h5>update note</h5>
+    <form id="updateForm">
+        <fieldset>
+            <label>ID</label>
+            <br/>
+            <input type="number" name="id"/>
+        </fieldset>
+
+        <fieldset>
+            <label>Title</label>
+            <br/>
+            <input type="text" name="title"/>
+        </fieldset>
+        <fieldset>
+            <label>Content</label>
+            <br/>
+            <textarea name="content"></textarea>
+        </fieldset>
+        <fieldset>
+            <label>parentID</label>
+            <br/>
+            <input type="number" name="parentId"/>
+        </fieldset>
+        <fieldset>
+            <label>Index</label>
+            <br/>
+            <input type="number" name="index"/>
+        </fieldset>
+        <input id="updateFormSubmitBtn"  type="button" value="go"/>
+    </form>
+
+    <h5>delete note</h5>
+    <form id="deleteForm">
+        <fieldset>
+            <label>ID</label>
+            <br/>
+            <input type="number" name="id"/>
+        </fieldset>
+        
+        <input id="deleteFormSubmitBtn"  type="button" value="go"/>
+    </form>
+    
+</body>
+</html>
