@@ -41,14 +41,26 @@ func NewNoteService(repo repository.RepositoryLayer) NoteService {
 
 // only title,content,parentID and index in note parameter is used
 func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
-	//validation
-	if note.GetParentID() < 1 {
-		return ErrInvalidParent
-	}
-	if note.GetIndex() < 0 {
+
+	//as long as parentID is valid, action should not fail
+	targetParent, err := ns.repo.Note().GetNote(c, note.GetParentID())
+	if err != nil {
 		return ErrInvalidParent
 	}
 
+	//set the Index field of the to-be-added note
+	currentChildren, err := ns.repo.Note().GetNoteUnder(c, targetParent.GetID())
+	directChildCount := 0
+	for _, child := range currentChildren[1:] {
+		if child.GetParentID() == targetParent.GetID() {
+			directChildCount += 1
+		}
+		//TODO: stop early
+	}
+
+	note.SetIndex(directChildCount)
+
+	//actual work
 	userID, _, err := helper.ExtractContext(c)
 	if err != nil {
 		return err
