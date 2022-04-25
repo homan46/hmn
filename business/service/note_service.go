@@ -250,6 +250,11 @@ func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, ind
 		}
 
 		newSibling := newPosition[1:]
+
+		if index > len(newSibling) {
+			return errors.New("index too big")
+		}
+
 		for _, sibling := range newSibling {
 			if sibling.GetIndex() >= note.GetIndex() {
 				sibling.SetIndex(sibling.GetIndex() + 1)
@@ -267,6 +272,11 @@ func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, ind
 		}
 
 		oldSibling := oldPosition[1:]
+
+		if index > len(oldSibling) {
+			return errors.New("index too big")
+		}
+
 		for _, sibling := range oldSibling {
 			if note.GetIndex() > index { //move to tail
 				if sibling.GetIndex() <= index && sibling.GetIndex() > note.GetIndex() {
