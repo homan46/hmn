@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -116,6 +117,12 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 					fromTree.Children = append(fromTree.Children, fromAll)
 				}
 			}
+		}
+
+		for _, note := range treeRootNote.Flatten() {
+			sort.Slice(note.Children, func(i, j int) bool {
+				return note.Children[i].GetIndex() < note.Children[j].GetIndex()
+			})
 		}
 
 		tx.Commit()
