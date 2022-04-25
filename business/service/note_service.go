@@ -218,15 +218,11 @@ func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, ind
 		return err
 	}
 
-	//check new parent exist
-	_, err = ns.repo.Note().GetNote(c, parentID)
-	if err != nil {
-		return err
-	}
+	pendingUpdateList := make([]*model.Note, 0)
 
 	if note.GetParentID() != parentID {
-		//TODO: check move under itself
-		thisAndUnder, err := ns.repo.Note().GetNoteUnder(c, id)
+		//check new parent is not child
+		thisAndUnder, err := ns.repo.Note().GetNoteUnder(c, id, math.MaxInt)
 
 		for _, child := range thisAndUnder[1:] {
 			if parentID == child.GetID() {
@@ -234,110 +230,69 @@ func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, ind
 			}
 		}
 
-		//index -1 to all the old sibling that is after current note
-		updateWaitList := make([]*model.Note, 0)
-
-		oldSibling, err := ns.GetNoteUnder(c, note.GetParentID())
+		//remove from old position, change index of old sibling
+		oldPosition, err := ns.repo.Note().GetNoteUnder(c, note.GetParentID(), 1)
 		if err != nil {
 			return err
 		}
-		sort.Slice(oldSibling[1:], func(i, j int) bool {
-			return oldSibling[i+1].GetIndex() < oldSibling[j+1].GetIndex()
-		})
 
-		for _, sib := range oldSibling[1:] {
-			if sib.GetIndex() > note.GetIndex() {
-				sib.SetIndex(sib.GetIndex() - 1)
-				updateWaitList = append(updateWaitList, sib)
+		oldSibling := oldPosition[1:]
+		for _, sibling := range oldSibling {
+			if sibling.GetIndex() > note.GetIndex() {
+				sibling.SetIndex(sibling.GetIndex() - 1)
+				pendingUpdateList = append(pendingUpdateList, sibling)
 			}
 		}
-
-		//index + 1 to all the new sibling that is after current note
-		newSibling, err := ns.GetNoteUnder(c, parentID)
+		//insert to new position position, change index of new sibling
+		newPosition, err := ns.repo.Note().GetNoteUnder(c, parentID, 1)
 		if err != nil {
 			return err
 		}
-		sort.Slice(newSibling[1:], func(i, j int) bool {
-			return newSibling[i+1].GetIndex() < newSibling[j+1].GetIndex()
-		})
 
-		for _, sib := range newSibling[1:] {
-			if sib.GetIndex() > index {
-				sib.SetIndex(sib.GetIndex() + 1)
-				updateWaitList = append(updateWaitList, sib)
+		newSibling := newPosition[1:]
+		for _, sibling := range newSibling {
+			if sibling.GetIndex() >= note.GetIndex() {
+				sibling.SetIndex(sibling.GetIndex() + 1)
+				pendingUpdateList = append(pendingUpdateList, sibling)
 			}
 		}
-
-		note.SetIndex(index)
-		note.SetParentID(parentID)
-
-		//ns.repo.Note().UpdateNote(c, note)
-		updateWaitList = append(updateWaitList, note)
-
-		for _, n := range updateWaitList {
-			err = ns.repo.Note().UpdateNote(c, n)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-
 	} else {
-		updateWaitList := make([]*model.Note, 0)
-
-		oldIdx := note.GetIndex()
-		newIdx := index
-
-		sibling, err := ns.GetNoteUnder(c, note.GetParentID())
-		if err != nil {
-			return err
-		}
-		sort.Slice(sibling[1:], func(i, j int) bool {
-			return sibling[i+1].GetIndex() < sibling[j+1].GetIndex()
-		})
-
-		if newIdx < oldIdx {
-			//move front,
-			//all between two Index  + 1
-
-			for i, n := range sibling[1:] {
-				if i >= newIdx && i < oldIdx {
-					n.SetIndex(n.GetIndex() + 1)
-					updateWaitList = append(updateWaitList, n)
-				}
-			}
-
-			note.SetIndex(index)
-			note.SetParentID(parentID)
-			updateWaitList = append(updateWaitList, note)
-
-		} else if newIdx > oldIdx {
-			//move back,
-			//all between two Index  - 1
-			for i, n := range sibling[1:] {
-				if i >= newIdx && i < oldIdx {
-					n.SetIndex(n.GetIndex() - 1)
-					updateWaitList = append(updateWaitList, n)
-				}
-			}
-
-			note.SetIndex(index)
-			note.SetParentID(parentID)
-			updateWaitList = append(updateWaitList, note)
-
-		} else {
+		if note.GetIndex() == index {
 			return nil
 		}
 
-		for _, n := range updateWaitList {
-			err = ns.repo.Note().UpdateNote(c, n)
-			if err != nil {
-				return err
-			}
+		oldPosition, err := ns.repo.Note().GetNoteUnder(c, note.GetParentID(), 1)
+		if err != nil {
+			return err
 		}
 
-		return nil
-
+		oldSibling := oldPosition[1:]
+		for _, sibling := range oldSibling {
+			if note.GetIndex() > index { //move to tail
+				if sibling.GetIndex() <= index && sibling.GetIndex() > note.GetIndex() {
+					sibling.SetIndex(sibling.GetIndex() - 1)
+					pendingUpdateList = append(pendingUpdateList, sibling)
+				}
+			} else if note.GetIndex() < index { //move to 0
+				if sibling.GetIndex() >= index && sibling.GetIndex() < note.GetIndex() {
+					sibling.SetIndex(sibling.GetIndex() + 1)
+					pendingUpdateList = append(pendingUpdateList, sibling)
+				}
+			}
+		}
 	}
+
+	note.SetParentID(parentID)
+	note.SetIndex(index)
+	pendingUpdateList = append(pendingUpdateList, note)
+
+	for _, n := range pendingUpdateList {
+		err = ns.repo.Note().UpdateNote(c, n)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 
 }
