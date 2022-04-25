@@ -157,20 +157,27 @@ func (ns *NoteServiceImpl) PatchNote(c context.Context, id int, input map[string
 			newValueWithoutPositionChange.SetContent(v)
 			break
 		case "parentId":
-			v, ok := value.(int)
+
+			f, ok := value.(float64)
+
 			if !ok {
 				return ErrFieldType
 			}
+			v := int(f)
+
 			if oldValue.GetParentID() != v {
 				positionChange = true
 			}
 			newValue.SetParentID(v)
 			break
 		case "index":
-			v, ok := value.(int)
+			f, ok := value.(float64)
+
 			if !ok {
 				return ErrFieldType
 			}
+
+			v := int(f)
 			if oldValue.GetIndex() != v {
 				positionChange = true
 			}
