@@ -1,6 +1,6 @@
 import { BaseService } from "./shared.js"
 
-export class NoteService extends BaseService{
+class NoteService extends BaseService{
     constructor(){
         super()
     }
@@ -12,31 +12,55 @@ export class NoteService extends BaseService{
         }
 
         return fetch(url,{
-            method: 'POST',
+            method: 'GET',
             headers: this.getDefaultHeaders()
         }).then(res=> res.json())
     }
 
-    getNote(){}
+    getNote(noteId){
+        return fetch(`/api/v1/note/${noteId}`,{
+            method: 'GET',
+            headers: this.getDefaultHeaders(),
+        }).then(res=>res.json())
+    }
 
-    updateNote(){
+    moveNote(noteId) {
 
     }
 
-    createNote(parentId){
-
+    createNote(parentId,title,content){
+        return fetch("/api/v1/note",{
+            method: 'POST',
+            headers: this.getDefaultHeaders(),
+            body: JSON.stringify({
+                parentId,
+                title,
+                content
+            })
+        })
     }
 
     updateTitle(noteId,newTitle){
-        fetch(`/api/v1/note/${noteId}`,{
-                method: 'PATCH',
-                headers: this.getDefaultHeaders(),
-                body: JSON.stringify({
-                    title:newTitle,
-                    extra:1882
-                })
-            }).then((res)=>{
-                return res.json()
+        return fetch(`/api/v1/note/${noteId}`,{
+            method: 'PATCH',
+            headers: this.getDefaultHeaders(),
+            body: JSON.stringify({
+                title:newTitle,
             })
+        })
+    }
+
+    updateContent(noteId,newContent){
+        return fetch(`/api/v1/note/${noteId}`,{
+            method: 'PATCH',
+            headers: this.getDefaultHeaders(),
+            body: JSON.stringify({
+                content:newContent,
+            })
+        })
     }
 }
+
+
+export const noteService = new NoteService()
+

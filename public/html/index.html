@@ -13,10 +13,9 @@
     <script type="module" >
         import { html, render } from 'https://unpkg.com/htm/preact/index.mjs?module'
         import {App} from '/js/component.js'
+        import { noteService } from '/js/service/service.js';
 
-        import {NoteService} from '/js/service/service.js'
-
-        window.ns = new NoteService()
+        window.ns = noteService
 
         render(html`<${App}/>`, document.body);
     </script>
