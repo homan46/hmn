@@ -19,7 +19,7 @@ type NoteRepository interface {
 
 	// return root note and all note under it
 	// the result is sorted by depth so root note is always the first
-	GetNoteUnder(c context.Context, rootNoteID int) ([]*model.Note, error)
+	GetNoteUnder(c context.Context, rootNoteID int, depth int) ([]*model.Note, error)
 }
 
 type SqlxNoteRepository struct {
@@ -132,7 +132,7 @@ func (r SqlxNoteRepository) DeleteNote(c context.Context, id int) error {
 	return nil
 }
 
-func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int) ([]*model.Note, error) {
+func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int, depth int) ([]*model.Note, error) {
 	_, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return nil, errors.New("get Context data fail")
@@ -172,8 +172,10 @@ func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int) ([]*
 			content ,
 			parent_id ,
 			idx 
-		from note_tree order by depth;
-	`, rootNoteID) //TODO: add ordering for each layer
+		from note_tree 
+		where depth <= ?
+		order by depth,parent_id,idx;
+	`, rootNoteID, depth) //TODO: add ordering for each layer
 
 	if err != nil {
 		return nil, err

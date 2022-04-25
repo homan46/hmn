@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"sort"
+	"math"
 
 	"codeberg.org/rchan/hmn/constant"
 	"codeberg.org/rchan/hmn/data/repository"
@@ -52,7 +52,7 @@ func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
 	}
 
 	//set the Index field of the to-be-added note
-	currentChildren, err := ns.repo.Note().GetNoteUnder(c, targetParent.GetID())
+	currentChildren, err := ns.repo.Note().GetNoteUnder(c, targetParent.GetID(), 1)
 	directChildCount := 0
 	for _, child := range currentChildren[1:] {
 		if child.GetParentID() == targetParent.GetID() {
@@ -87,7 +87,7 @@ func (ns *NoteServiceImpl) GetAllNote(c context.Context) ([]*model.Note, error) 
 }
 
 func (ns *NoteServiceImpl) GetNoteUnder(c context.Context, rootID int) ([]*model.Note, error) {
-	return ns.repo.Note().GetNoteUnder(c, rootID)
+	return ns.repo.Note().GetNoteUnder(c, rootID, math.MaxInt)
 }
 
 func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error {
