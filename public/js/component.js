@@ -136,7 +136,7 @@ class NavigationNote extends Component {
                 }
             }  onBlur=${this.titleBlurHandler} value=${this.title}/>`
         }else{
-            titleSection = html`<span onClick=${this.titleClickHandler}>${props.treeData.title}</span>`
+            titleSection = html`<span draggable="true" onClick=${this.titleClickHandler}>${this.noteId}:${props.treeData.title}</span>`
         }
         
         return html`
@@ -174,18 +174,19 @@ class NavigationNote extends Component {
             changed = true
         }
 
-        if (changed){
-            noteService.updateTitle(this.noteId,this.titleEditor.value).then(()=>{
-                console.log(this.props)
-                this.props.refreshHandler()
-            })
-        }else{
-            this.setState({enableTitleEditing:false})
-        }
+        
+        this.setState({enableTitleEditing:false})
+        noteService.updateTitle(this.noteId,this.titleEditor.value).then(()=>{
+            this.props.refreshHandler()
+        })
+        
     }
 
     addUnderHandler = () => {
-        noteService.createNote(this.noteId,"new title","")        
+        noteService.createNote(this.noteId,"new title","").then(()=>{
+            this.props.refreshHandler()
+        })
+
     }
 
 }

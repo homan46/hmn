@@ -24,8 +24,15 @@ class NoteService extends BaseService{
         }).then(res=>res.json())
     }
 
-    moveNote(noteId) {
-
+    moveNote(noteId,newParentId,index) {
+        return fetch(`/api/v1/note/${noteId}`,{
+            method: 'PATCH',
+            headers: this.getDefaultHeaders(),
+            body: JSON.stringify({
+                parentId:newParentId,
+                index:index
+            })
+        })
     }
 
     createNote(parentId,title,content){
