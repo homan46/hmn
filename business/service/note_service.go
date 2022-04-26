@@ -278,14 +278,14 @@ func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, ind
 		}
 
 		for _, sibling := range oldSibling {
-			if note.GetIndex() > index { //move to tail
-				if sibling.GetIndex() <= index && sibling.GetIndex() > note.GetIndex() {
-					sibling.SetIndex(sibling.GetIndex() - 1)
-					pendingUpdateList = append(pendingUpdateList, sibling)
-				}
-			} else if note.GetIndex() < index { //move to 0
+			if note.GetIndex() > index { //move to 0
 				if sibling.GetIndex() >= index && sibling.GetIndex() < note.GetIndex() {
 					sibling.SetIndex(sibling.GetIndex() + 1)
+					pendingUpdateList = append(pendingUpdateList, sibling)
+				}
+			} else if note.GetIndex() < index { //move to end
+				if sibling.GetIndex() <= index && sibling.GetIndex() > note.GetIndex() {
+					sibling.SetIndex(sibling.GetIndex() - 1)
 					pendingUpdateList = append(pendingUpdateList, sibling)
 				}
 			}
