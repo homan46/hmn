@@ -10,8 +10,6 @@ const html = htm.bind(h);
 
 const bus = new EventBus()
 
-
-
 export class App extends Component {
     constructor (){
         super()
@@ -119,14 +117,33 @@ class NavigationNote extends Component {
     }
 
     render(props,state) {
+
+
         var child = html``
         if (props.treeData.children != null) {
             child = props.treeData.children.map((val)=>{
-                return html`<${NavigationNote} refreshHandler=${this.props.refreshHandler} openNoteHandler=${props.openNoteHandler} treeData=${val}/>`
+                return html`
+                <hr 
+                    onDragOver=${(e)=>{e.preventDefault()}} 
+                    onDrop=${(e)=>{this.dropHandler(e,val.parentId,val.index)}}
+                />
+                
+                <${NavigationNote} 
+                    refreshHandler=${this.props.refreshHandler} 
+                    openNoteHandler=${props.openNoteHandler} 
+                    treeData=${val}/>
+                `
             })
         }
         
-        var titleSection// = html`<span onClick=${this.titleClickHandler}>${props.treeData.title}</span>`
+        var titleSection = titleSection = html`
+            <span draggable="true"  
+                onDragStart=${this.dragHandler} 
+                onDragOver=${(e)=>{e.preventDefault()}} 
+                onDrop=${(e)=>{this.dropHandler(e,this.noteId,props.treeData.children.length)}}
+                onClick=${this.titleClickHandler}>${this.noteId}:${props.treeData.title}
+            </span>
+            <span onClick=${this.addUnderHandler}>+</span>`
 
         if (state.enableTitleEditing){
             titleSection = html`<input type="text" ref=${ dom => {
@@ -135,14 +152,11 @@ class NavigationNote extends Component {
                     this.titleEditor = dom
                 }
             }  onBlur=${this.titleBlurHandler} value=${this.title}/>`
-        }else{
-            titleSection = html`<span draggable="true" onClick=${this.titleClickHandler}>${this.noteId}:${props.treeData.title}</span>`
         }
         
         return html`
         <li>
-            ${titleSection}
-            <span onClick=${this.addUnderHandler}>+</span>
+            ${titleSection}    
             <ul class="children">
                 ${child}
             </ul>
@@ -174,7 +188,6 @@ class NavigationNote extends Component {
             changed = true
         }
 
-        
         this.setState({enableTitleEditing:false})
         noteService.updateTitle(this.noteId,this.titleEditor.value).then(()=>{
             this.props.refreshHandler()
@@ -186,7 +199,21 @@ class NavigationNote extends Component {
         noteService.createNote(this.noteId,"new title","").then(()=>{
             this.props.refreshHandler()
         })
+    }
 
+    dragHandler = (e) => {
+        //set noteId of the dragged note 
+        console.log(this.noteId)
+        e.dataTransfer.setData("noteId",this.noteId)
+    }
+
+    dropHandler = (e,parentId,index) => {
+        //noteId from the dragged note
+        var noteId = e.dataTransfer.getData("noteId");
+        
+        noteService.moveNote(noteId,parentId,index) .then(()=>{
+            this.props.refreshHandler()
+        })
     }
 
 }
