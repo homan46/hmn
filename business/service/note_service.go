@@ -213,6 +213,12 @@ func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
 }
 
 func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, index int) error {
+
+	//checking cannot move under itself
+	if id == parentID {
+		return ErrInvalidParent
+	}
+
 	note, err := ns.repo.Note().GetNote(c, id)
 	if err != nil {
 		return err
