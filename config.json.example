@@ -2,5 +2,12 @@
     "storage":{
         "type":"sqlite3",
         "path":"db.sqlite3"
+    },
+    "server":{
+        "use_https":true,
+        "tls_key":"./example.key",
+        "tls_cert":"./example.crt",
+        "listen_on":":8443",
+        "allow_origins":[]
     }
 }
