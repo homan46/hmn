@@ -18,15 +18,6 @@ func New(bl business.BusinessLayer) *echo.Echo {
 	e.Static("/css", "./public/css")
 	e.Static("/lib", "./public/lib")
 
-	v1 := e.Group("/api/v1")
-	v1.GET("/ping", func(c echo.Context) error {
-		return c.JSON(200,
-			struct {
-				Name string `json:"name"`
-				Age  int    `json:"age"`
-			}{"tom", 10})
-	})
-
 	notec := controller.NewNoteController(bl)
 
 	noteRoute := v1.Group("/note")
