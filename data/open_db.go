@@ -1,11 +1,13 @@
 package data
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
 	"codeberg.org/rchan/hmn/config"
+	"codeberg.org/rchan/hmn/constant"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -53,14 +55,14 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				modified_time,modified_by,
 				user_name, password
 			) values (
-				0,
-				datetime(),0,
-				datetime(),0,
+				` + fmt.Sprint(constant.SystemUserID) + `,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				"system",""
 			),(
-				1,
-				datetime(),0,
-				datetime(),0,
+				` + fmt.Sprint(constant.SystemUserID) + `,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				"admin",""
 			);
 			create table note (
@@ -83,8 +85,8 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				parent_id,idx
 			)values(
 				1,
-				datetime(),0,
-				datetime(),0,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
+				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				"root","",
 				0,0
 			);
@@ -111,7 +113,6 @@ func getDBVersion(db *sqlx.DB) (version int) {
 	var versionText = ""
 	err := db.Get(&versionText, "select value from system_config where key = ?", "schema.version")
 
-	//err := db.Select(&versionText, "select value from system_config where key = ?", "schema.version")
 	log.Println(versionText)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such table") { //TODO:

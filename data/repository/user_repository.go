@@ -12,6 +12,7 @@ import (
 
 type UserRepository interface {
 	GetUser(c context.Context, id int) (*model.User, error)
+	GetUserByUserName(c context.Context, userName string) (*model.User, error)
 	GetAllUser(c context.Context) ([]*model.User, error)
 	AddUser(c context.Context, user *model.User) error
 	UpdateUser(c context.Context, user *model.User) error
@@ -31,6 +32,24 @@ func (r SqlxUserRepository) GetUser(c context.Context, id int) (*model.User, err
 	//user := model.User{}
 	userEntity := dto.UserEntityDTO{}
 	err = tx.Get(&userEntity, "select * from user where id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	user := model.NewUserFrom(&userEntity)
+
+	return user, nil
+}
+
+func (r SqlxUserRepository) GetUserByUserName(c context.Context, userName string) (*model.User, error) {
+	_, tx, err := helper.ExtractContext(c)
+	if err != nil {
+		return nil, errors.New("get Context data fail")
+	}
+
+	//user := model.User{}
+	userEntity := dto.UserEntityDTO{}
+	err = tx.Get(&userEntity, "select * from user where user_name = ?", userName)
 	if err != nil {
 		return nil, err
 	}
