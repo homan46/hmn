@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	AddUser(c context.Context, user *model.User) error
 	GetUser(c context.Context, id int) (*model.User, error)
+	GetUserByUserName(c context.Context, userName string) (*model.User, error)
 	GetAllUser(c context.Context) ([]*model.User, error)
 	UpdateUser(c context.Context, user *model.User) error
 	DeleteUser(c context.Context, id int) error
@@ -33,6 +34,10 @@ func (us *UserServiceImpl) AddUser(c context.Context, user *model.User) error {
 }
 func (us *UserServiceImpl) GetUser(c context.Context, id int) (*model.User, error) {
 	return us.repo.User().GetUser(c, id)
+}
+
+func (us *UserServiceImpl) GetUserByUserName(c context.Context, userName string) (*model.User, error) {
+	return us.repo.User().GetUserByUserName(c, userName)
 }
 
 func (us *UserServiceImpl) GetAllUser(c context.Context) ([]*model.User, error) {

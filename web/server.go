@@ -25,6 +25,7 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 		TokenLookup: "header:X-XSRF-TOKEN",
 	}))
 
+	e.Use(midd.NewSess())
 	e.Use(midd.NewAuth(bl))
 
 	viewRenderer := midd.NewRenderer()

@@ -36,7 +36,12 @@ func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 	model.SetParentID(input.ParentID)
 	model.SetIndex(input.Index)
 
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -80,7 +85,12 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 	}
 
 	//get context
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -148,7 +158,12 @@ func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -180,7 +195,12 @@ func (n *NoteController) UpdateNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -223,7 +243,12 @@ func (n *NoteController) PatchNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	mycontext, tx, err := n.b.GetContextFor(userID)
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -247,7 +272,12 @@ func (n *NoteController) DeleteNoteEndpoint(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	mycontext, tx, err := n.b.GetContextFor(1)
+	userID, err := readUserIDFromSession(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	mycontext, tx, err := n.b.GetContextFor(userID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
