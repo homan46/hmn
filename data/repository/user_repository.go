@@ -118,7 +118,7 @@ func (r SqlxUserRepository) UpdateUser(c context.Context, user *model.User) erro
 
 	_, err = tx.Exec(`
 	update user set modified_time = datetime(), modified_by = ?,
-	username = ?, password = ?
+	user_name = ?, password = ?
 	where id = ?
 	`, userID, user.GetUserName(), user.GetPassword(), user.GetID())
 

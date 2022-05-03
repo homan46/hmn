@@ -15,6 +15,7 @@ type UserService interface {
 	DeleteUser(c context.Context, id int) error
 
 	CheckUserPassword(c context.Context, userName string, password string) (bool, error)
+	SetUserPassword(c context.Context, userName string, password string) error
 }
 
 type UserServiceImpl struct {
@@ -52,4 +53,19 @@ func (us *UserServiceImpl) CheckUserPassword(c context.Context, userName string,
 	}
 
 	return user.CheckPassword(password), nil
+}
+
+func (us *UserServiceImpl) SetUserPassword(c context.Context, userName string, password string) error {
+	user, err := us.repo.User().GetUserByUserName(c, userName)
+	if err != nil {
+		return err
+	}
+
+	user.SetPassword(password)
+	err = us.repo.User().UpdateUser(c, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

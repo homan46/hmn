@@ -60,7 +60,7 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				"system",""
 			),(
-				` + fmt.Sprint(constant.SystemUserID) + `,
+				` + fmt.Sprint(constant.AdminUserID) + `,
 				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				datetime(),` + fmt.Sprint(constant.SystemUserID) + `,
 				"admin",""
