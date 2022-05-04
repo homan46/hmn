@@ -5,6 +5,7 @@ import  'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js'
 
 import {AppViewModel, EditorState,EventBus} from './extra.js'
 import { noteService } from './service/service.js';
+import style from './style.js';
 
 const html = htm.bind(h);
 
@@ -40,7 +41,7 @@ class MainPage extends Component {
     render(props,state) {
 
         return html`
-        <div class='main-container'>
+        <div class='main-container' style=${style.mainContainer}>
             <${NavigationBar} openNoteHandler=${this.openNoteHandler}/>
             <${NoteEditor} 
                 noteId=${state.currentNoteId}
@@ -55,6 +56,8 @@ class MainPage extends Component {
         console.log()
         this.setState({currentNoteId:noteId})
     }
+
+    
 }
 
 
@@ -85,7 +88,7 @@ class NavigationBar extends Component {
             return html`<p>loading</p>`
         } else {
             return html`
-            <div class="navigation-bar">
+            <div class="navigation-bar" style=${style.navigationBar}>
                 <${NavigationNote} 
                     openNoteHandler=${props.openNoteHandler} 
                     refreshHandler=${this.refreshHandler}
@@ -155,9 +158,9 @@ class NavigationNote extends Component {
         }
         
         return html`
-        <li>
+        <li  style=${style.navigationBarListItem}>
             ${titleSection}    
-            <ul class="children">
+            <ul class="children" style=${style.navigationBarList}>
                 ${child}
             </ul>
         </li>`
@@ -267,7 +270,7 @@ class NoteEditor extends Component {
 
     render(props,state){
         return html`
-        <div class="note-editor">
+        <div class="note-editor" style=${style.noteEditor}>
             <textarea class="note-editor-textarea" ref=${this.ref} >
             </textarea>
         </div>`
