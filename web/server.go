@@ -26,7 +26,8 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 	}))
 
 	e.Use(midd.NewSess())
-	e.Use(midd.NewAuth(bl))
+	//e.Use(midd.NewAuth(bl))
+	e.Use(midd.NewFakeAuth())
 
 	viewRenderer := midd.NewRenderer()
 	e.Renderer = viewRenderer

@@ -12,7 +12,6 @@ import (
 func NewAuth(bl business.BusinessLayer) echo.MiddlewareFunc {
 
 	return middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		// Be careful to use constant time comparison to prevent timing attacks
 
 		mycontext, tx, err := bl.GetContextForSystem()
 		if err != nil {
@@ -48,4 +47,22 @@ func NewAuth(bl business.BusinessLayer) echo.MiddlewareFunc {
 
 		return pass, nil
 	})
+}
+
+func NewFakeAuth() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			sess, _ := session.Get("credential", c)
+			sess.Options = &sessions.Options{
+				Path:     "/",
+				MaxAge:   86400 * 7,
+				HttpOnly: true,
+			}
+
+			sess.Values["user_id"] = 2
+			sess.Values["user_name"] = "admin"
+			return next(c)
+		}
+	}
+
 }
