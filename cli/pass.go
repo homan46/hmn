@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -20,10 +19,6 @@ var resetPasswordCmd = &cobra.Command{
 	Short: "reset password for a user",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		//configFlag := cmd.Flags().Lookup("config")
-		// configFlag.Value.(string)
-		// fmt.Println(configFlag.Value)
-
 		configPath, err := cmd.Flags().GetString("config")
 
 		if err != nil {
@@ -36,14 +31,8 @@ var resetPasswordCmd = &cobra.Command{
 		}
 
 		fmt.Printf("the config path is %s\n", configPath)
-		fmt.Printf("the user is %s\n", user)
 
-		writer := bufio.NewWriter(os.Stdout)
-
-		writer.WriteString("please enter new password for " + user + "\n")
-		writer.Flush()
-
-		term.ReadPassword(int(os.Stdin.Fd()))
+		fmt.Printf("please enter new password for %s\n", user)
 
 		bytepw, err := term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
@@ -52,8 +41,7 @@ var resetPasswordCmd = &cobra.Command{
 
 		p1 := strings.TrimSpace(string(bytepw))
 
-		writer.WriteString("please enter new password for " + user + " again\n")
-		writer.Flush()
+		fmt.Printf("please enter new password for %s again\n", user)
 
 		bytepw, err = term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
@@ -61,9 +49,6 @@ var resetPasswordCmd = &cobra.Command{
 		}
 
 		p2 := strings.TrimSpace(string(bytepw))
-
-		fmt.Println(p1)
-		fmt.Println(p2)
 
 		if p1 == p2 {
 			//actual work
@@ -81,11 +66,10 @@ var resetPasswordCmd = &cobra.Command{
 				tx.Rollback()
 			}
 			tx.Commit()
-			writer.WriteString("reset password success")
-			writer.Flush()
+
+			fmt.Println("reset password success")
 		} else {
-			writer.WriteString("password mismatch, no change \n")
-			writer.Flush()
+			fmt.Println("password mismatch, please try again")
 		}
 
 	},
@@ -98,9 +82,5 @@ func init() {
 
 	resetPasswordCmd.Flags().Lookup("user")
 	resetPasswordCmd.MarkFlagRequired("user")
-
-}
-
-func readPassword() {
 
 }
