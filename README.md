@@ -2,20 +2,23 @@
 
 > !!This project is under development and is insecure and unpolished at the moment!!
 
+
+
 hmn is hierarchical note taking application like [Trilium Notes](https://github.com/zadam/trilium) but without all the function that I don't need.
 
 I have been using Trilium Notes for a few year but I found myself not using most of the feature it provide, so I would like to make an alternative that only contain the feature that I need. I am hoping that by writing this application in golang I can reduce its memory usage so that I can run other useful selfhost application on my respberry pi
 
 
 
-## unimplemented/unpolished Feature
+## Unimplemented/unpolished Feature
 - delete note 
-- web security like CORS and 
+- web security like CORS and other (for starters, should make hmn do what [helmet](https://helmetjs.github.io/) do)
 - reset user password from cli
 - only has minimal validation/checking
 - error handling
 - authentication
 - efficiently send update to server
+- the entire front-end could be better
 
 
 
@@ -38,7 +41,7 @@ Directory | Description
 ## How to run 
 
 
-### example config file
+### Example config file
 
 `config.json`
 ```
@@ -63,12 +66,25 @@ Directory | Description
 go run main.go start
 ```
 
-### build and Run
+### Build and Run
 ```
 go build
 
 ./hmn start
 ```
+
+### Build for Window on Linux
+```
+GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc  go build
+```
+
+### Set password for user
+when application is not running
+```
+go run main.go reset -u <username>
+```
+username is admin by default
+
 
 ## Feature 
 - create new note under by clicking `+` after the note title
