@@ -16,7 +16,7 @@ func OpenDB(conf *config.Config) *sqlx.DB {
 
 	db, err := sqlx.Connect("sqlite3", conf.Storage.Path)
 	if err != nil {
-		log.Fatal("open db fail")
+		log.Fatal(err)
 	}
 
 	version := getDBVersion(db)
