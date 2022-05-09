@@ -1,6 +1,8 @@
 package web
 
 import (
+	"net/http"
+
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/config"
 	"codeberg.org/rchan/hmn/web/controller"
@@ -22,12 +24,19 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 	}))
 
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "header:X-XSRF-TOKEN",
+		TokenLookup:    "header:X-XSRF-TOKEN",
+		CookieSameSite: http.SameSiteStrictMode,
+		CookieHTTPOnly: true,
+		CookiePath:     "/",
+		Skipper: func(c echo.Context) bool {
+			return c.Path() == "/login" && c.Request().Method == http.MethodPost
+		},
 	}))
 
 	e.Use(midd.NewSess())
 	//e.Use(midd.NewAuth(bl))
-	e.Use(midd.NewFakeAuth())
+	//e.Use(midd.NewFakeAuth())
+	e.Use(midd.NewDefaultAuth(bl))
 
 	viewRenderer := midd.NewRenderer()
 	e.Renderer = viewRenderer
@@ -39,8 +48,11 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 
 	notec := controller.NewNoteController(bl)
 	viewc := controller.NewViewController(bl)
+	authc := controller.NewAuthController(bl)
 
 	e.GET("/", viewc.GetMainPage)
+	e.GET("/login", viewc.GetLoginPage)
+	e.POST("/login", authc.Login)
 
 	v1 := e.Group("/api/v1")
 

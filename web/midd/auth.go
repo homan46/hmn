@@ -1,6 +1,8 @@
 package midd
 
 import (
+	"net/http"
+
 	"codeberg.org/rchan/hmn/business"
 
 	"github.com/gorilla/sessions"
@@ -64,5 +66,43 @@ func NewFakeAuth() echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
 
+func NewDefaultAuth(bl business.BusinessLayer) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
+		return func(c echo.Context) error {
+
+			sess, err := session.Get("credential", c)
+			if err != nil {
+				return err
+			}
+
+			//first time
+			if sess.IsNew {
+				err := sess.Save(c.Request(), c.Response())
+				if err != nil {
+					return err
+				}
+			}
+
+			_, exists := sess.Values["user_id"]
+
+			if exists {
+				//redirect to main page if trying to go to login page after login
+				if c.Path() == "/login" {
+					return c.Redirect(http.StatusFound, "/")
+				}
+				return next(c)
+			} else {
+				//always allow access to login page
+				if c.Path() == "/login" {
+					return next(c)
+				}
+				//no user_id means user is not login
+				return c.Redirect(http.StatusFound, "/login")
+			}
+
+		}
+	}
 }

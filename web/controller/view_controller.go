@@ -24,3 +24,11 @@ func (n *ViewController) GetMainPage(c echo.Context) error {
 		"csrf_token": csrfToken,
 	})
 }
+
+func (n *ViewController) GetLoginPage(c echo.Context) error {
+	csrfToken := c.Get("csrf").(string)
+
+	return c.Render(http.StatusOK, "login.html", map[string]interface{}{
+		"csrf_token": csrfToken,
+	})
+}

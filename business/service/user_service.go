@@ -2,9 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"codeberg.org/rchan/hmn/model"
 	"codeberg.org/rchan/hmn/repository"
+)
+
+var (
+	ErrUserNotExist = errors.New("user does not exist")
 )
 
 type UserService interface {
@@ -54,6 +59,9 @@ func (us *UserServiceImpl) DeleteUser(c context.Context, id int) error {
 func (us *UserServiceImpl) CheckUserPassword(c context.Context, userName string, password string) (bool, error) {
 	user, err := us.repo.User().GetUserByUserName(c, userName)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return false, ErrUserNotExist
+		}
 		return false, err
 	}
 
