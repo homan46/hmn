@@ -11,13 +11,13 @@ type ViewController struct {
 	b business.BusinessLayer
 }
 
-func NewViewController(b business.BusinessLayer) *NoteController {
-	return &NoteController{
+func NewViewController(b business.BusinessLayer) *ViewController {
+	return &ViewController{
 		b: b,
 	}
 }
 
-func (n *NoteController) GetMainPage(c echo.Context) error {
+func (n *ViewController) GetMainPage(c echo.Context) error {
 	csrfToken := c.Get("csrf").(string)
 
 	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
