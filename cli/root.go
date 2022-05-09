@@ -16,7 +16,7 @@ func init() {
 	rootCmd = &cobra.Command{
 		Use: "hmn",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("root command")
+			fmt.Println("please use -h for more options")
 		},
 	}
 
