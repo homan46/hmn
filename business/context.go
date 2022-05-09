@@ -6,7 +6,7 @@ import (
 
 	ser "codeberg.org/rchan/hmn/business/service"
 	"codeberg.org/rchan/hmn/constant"
-	repo "codeberg.org/rchan/hmn/data/repository"
+	repo "codeberg.org/rchan/hmn/repository"
 	"github.com/jmoiron/sqlx"
 )
 

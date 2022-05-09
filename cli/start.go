@@ -5,7 +5,8 @@ import (
 
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/config"
-	"codeberg.org/rchan/hmn/data"
+	"codeberg.org/rchan/hmn/helper"
+
 	"codeberg.org/rchan/hmn/web"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +25,7 @@ var startServerCmd = &cobra.Command{
 		fmt.Printf("the config path is %s", configPath)
 
 		conf := config.LoadConfig(configPath)
-		db := data.OpenDB(conf)
+		db := helper.OpenDB(conf)
 		business := business.NewBusunessLayer(db)
 		server := web.New(business, conf)
 

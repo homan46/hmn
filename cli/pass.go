@@ -8,7 +8,8 @@ import (
 
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/config"
-	"codeberg.org/rchan/hmn/data"
+	"codeberg.org/rchan/hmn/helper"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"golang.org/x/term"
@@ -53,7 +54,7 @@ var resetPasswordCmd = &cobra.Command{
 		if p1 == p2 {
 			//actual work
 			conf := config.LoadConfig(configPath)
-			db := data.OpenDB(conf)
+			db := helper.OpenDB(conf)
 			business := business.NewBusunessLayer(db)
 
 			myContext, tx, err := business.GetContextForSystem()

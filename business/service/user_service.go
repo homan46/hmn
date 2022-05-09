@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"codeberg.org/rchan/hmn/data/repository"
 	"codeberg.org/rchan/hmn/model"
+	"codeberg.org/rchan/hmn/repository"
 )
 
 type UserService interface {

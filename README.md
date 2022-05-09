@@ -31,7 +31,7 @@ Directory | Description
 [`cli/`](cli/) | Logic for handling command line argument
 [`config/`](config/) | Structure and helper function for loading config file
 [`constant/`](constant/) | Constant value
-[`data/`](data/) | Data tier logic and helper to create new sqlite data store
+[`repository/`](repository/) | Data tier logic and helper to create new sqlite data store
 [`dto/`](dto/) | Dto for transmitting data with web controller or repository
 [`helper/`](helper/) | Helper function that used by different part of the application
 [`model/`](model/) | Business model that might have business logic in it

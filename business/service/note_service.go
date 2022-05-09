@@ -6,9 +6,9 @@ import (
 	"math"
 
 	"codeberg.org/rchan/hmn/constant"
-	"codeberg.org/rchan/hmn/data/repository"
 	"codeberg.org/rchan/hmn/helper"
 	"codeberg.org/rchan/hmn/model"
+	"codeberg.org/rchan/hmn/repository"
 )
 
 var (
