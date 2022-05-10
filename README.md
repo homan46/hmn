@@ -8,7 +8,7 @@ hmn is hierarchical note taking application like [Trilium Notes](https://github.
 
 I have been using Trilium Notes for a few year but I found myself not using most of the feature it provide, so I would like to make an alternative that only contain the feature that I need. I am hoping that by writing this application in golang I can reduce its memory usage so that I can run other useful selfhost application on my respberry pi
 
-![screenshot of hmn](https://rchan.codeberg.page/hmn-main.png )
+![screenshot of hmn](https://rchan.codeberg.page/hmn-demo/img/hmn-main.png)
 
 ## Unimplemented/unpolished Feature
 - delete note 
