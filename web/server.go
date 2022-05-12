@@ -33,7 +33,7 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 		},
 	}))
 
-	e.Use(midd.NewSess())
+	e.Use(midd.NewSess(conf))
 	//e.Use(midd.NewAuth(bl))
 	//e.Use(midd.NewFakeAuth())
 	e.Use(midd.NewDefaultAuth(bl))

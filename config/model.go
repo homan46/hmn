@@ -11,5 +11,6 @@ type Config struct {
 		TlsCert      string   `json:"tls_cert"`
 		ListenOn     string   `json:"listen_on"`
 		AllowOrigins []string `json:"allow_origins"`
+		CookieSceret string   `json:"cookie_sceret"`
 	} `json:"server"`
 }

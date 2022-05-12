@@ -8,6 +8,7 @@
         "tls_key":"./example.key",
         "tls_cert":"./example.crt",
         "listen_on":":8443",
-        "allow_origins":[]
+        "allow_origins":[],
+        "cookie_sceret":""  //if empty string, generate random key on start
     }
 }
