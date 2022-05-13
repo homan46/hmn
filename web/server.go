@@ -29,7 +29,9 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 		CookieHTTPOnly: true,
 		CookiePath:     "/",
 		Skipper: func(c echo.Context) bool {
-			return c.Path() == "/login" && c.Request().Method == http.MethodPost
+			return (c.Path() == "/login" && c.Request().Method == http.MethodPost) ||
+				(c.Path() == "/api/v1/login" && c.Request().Method == http.MethodPost)
+
 		},
 	}))
 
@@ -52,7 +54,7 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 
 	e.GET("/", viewc.GetMainPage)
 	e.GET("/login", viewc.GetLoginPage)
-	e.POST("/login", authc.Login)
+	//e.POST("/login", authc.Login)
 
 	v1 := e.Group("/api/v1")
 
@@ -63,6 +65,10 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 	noteRoute.PUT("/:id", notec.UpdateNoteEndpoint)
 	noteRoute.PATCH("/:id", notec.PatchNoteEndpoint)
 	noteRoute.DELETE("/:id", notec.DeleteNoteEndpoint)
+
+	sessionRoute := v1.Group("/session")
+	sessionRoute.POST("", authc.CreateSession)
+	sessionRoute.DELETE("", authc.DeleteSession)
 
 	return e
 }

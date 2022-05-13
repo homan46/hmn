@@ -66,6 +66,13 @@ class NoteService extends BaseService{
             })
         })
     }
+
+    deleteNote(noteId){
+        return fetch(`/api/v1/note/${noteId}`,{
+            method: 'DELETE',
+            headers: this.getDefaultHeaders()
+        })
+    }
 }
 
 

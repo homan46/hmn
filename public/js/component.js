@@ -5,6 +5,7 @@ import  'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js'
 
 import {AppViewModel, EditorState,EventBus} from './extra.js'
 import { noteService } from './service/service.js';
+import { authService } from './service/auth_service.js';
 import style from './style.js';
 
 const html = htm.bind(h);
@@ -53,7 +54,7 @@ class MainPage extends Component {
     // Callback for Note editor
     //
     openNoteHandler = (noteId)=>{
-        console.log()
+        
         this.setState({currentNoteId:noteId})
     }
 
@@ -93,11 +94,47 @@ class NavigationBar extends Component {
                     openNoteHandler=${props.openNoteHandler} 
                     refreshHandler=${this.refreshHandler}
                     treeData=${state.treeData}/>
+                    <${NavigationFunctionBar} refreshHandler=${this.refreshHandler}/>
             </div>`
         }
-        
+    }
+
+    
+}
+
+class NavigationFunctionBar extends Component {
+    constructor(){
+        super()
+    }
+
+    render(props,state){
+        return html`
+        <div style=${style.navigationFunctionBar}>
+
+            <span style=${style.navigationBarDeleteArea}
+                onDragOver=${(e)=>{e.preventDefault()}} 
+                onDrop=${this.dropOnDeleteHandler}
+            >X</span>
+            <input type="button" value="Logout" onClick=${this.logoutHandler}/>
+            
+        </div>`   
+    }
+
+    dropOnDeleteHandler = (e) => {
+        //noteId from the dragged note
+        var noteId = e.dataTransfer.getData("noteId");
+        console.log(noteId)
+     
+        noteService.deleteNote(noteId).then(()=>{
+            this.props.refreshHandler()
+        })
+    }
+
+    logoutHandler = () => {
+        authService.logout()
     }
 }
+
 
 class NavigationNote extends Component {
 
@@ -222,7 +259,8 @@ class NavigationNote extends Component {
 }
 
 class NoteEditor extends Component {
-    ref = createRef()
+    textAreaRef = createRef()
+    titleRef = createRef()
     simplemde
     dirty=false
     
@@ -231,7 +269,7 @@ class NoteEditor extends Component {
     }
 
     initializateEditor(){
-        this.simplemde = new SimpleMDE({ element: this.ref.current });
+        this.simplemde = new SimpleMDE({ element: this.textAreaRef.current });
         this.downloadContent()
         this.simplemde.codemirror.on("change",(instance,change)=>{
             this.dirty=true
@@ -241,7 +279,9 @@ class NoteEditor extends Component {
 
     downloadContent(){
         noteService.getNote(this.props.noteId).then(json => {
+            console.log(json)
             this.simplemde.value(json.content)
+            this.titleRef.current.innerHTML = json.title
         })
     }
 
@@ -256,6 +296,7 @@ class NoteEditor extends Component {
     shouldComponentUpdate(nextProps, nextState){
         noteService.getNote(nextProps.noteId).then(json => {
             this.simplemde.value(json.content)
+            this.titleRef.current.innerHTML = json.title
         })
         return false
     }
@@ -270,8 +311,10 @@ class NoteEditor extends Component {
 
     render(props,state){
         return html`
+
         <div class="note-editor" style=${style.noteEditor}>
-            <textarea class="note-editor-textarea" ref=${this.ref} >
+            <p class="note-editor-title" ref=${this.titleRef}></p>
+            <textarea class="note-editor-textarea" ref=${this.textAreaRef} >
             </textarea>
         </div>`
     }

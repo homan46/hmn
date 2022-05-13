@@ -20,7 +20,7 @@ func NewAuthController(b business.BusinessLayer) *AuthController {
 	}
 }
 
-func (n *AuthController) Login(c echo.Context) error {
+func (n *AuthController) CreateSession(c echo.Context) error {
 	userName := c.FormValue("userName")
 	pass := c.FormValue("password")
 	csrfInput := c.FormValue("csrf")
@@ -33,15 +33,6 @@ func (n *AuthController) Login(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	/*
-		csrfInput := c.FormValue("csrf")
-
-		csrfToken := c.Get("csrf").(string)
-
-		if csrfInput != csrfToken {
-			return echo.ErrBadRequest
-		}
-	*/
 	mycontext, tx, err := n.b.GetContextForSystem()
 	if err != nil {
 		return err
@@ -86,4 +77,24 @@ func (n *AuthController) Login(c echo.Context) error {
 
 	tx.Commit()
 	return c.Redirect(http.StatusFound, "/login")
+}
+
+func (n *AuthController) DeleteSession(c echo.Context) error {
+	sess, _ := session.Get("credential", c)
+
+	sess.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 2,
+		HttpOnly: true,
+	}
+
+	delete(sess.Values, "user_id")
+	delete(sess.Values, "user_name")
+
+	err := sess.Save(c.Request(), c.Response())
+	if err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }

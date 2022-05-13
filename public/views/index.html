@@ -13,10 +13,16 @@
         import { html, render } from 'https://unpkg.com/htm/preact/index.mjs?module'
         import {App} from '/js/component.js'
         import { noteService } from '/js/service/service.js';
+        import { authService } from '/js/service/auth_service.js';
 
         var token = "{{.csrf_token}}"
 
-        window.ns = noteService.setCsrf(token)
+        noteService.setCsrf(token)
+        authService.setCsrf(token)
+        
+
+        window.ns = noteService
+        window.as = authService
 
         render(html`<${App}/>`, document.body);
     </script>

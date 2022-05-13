@@ -10,7 +10,24 @@
 
 var navigationBar = {
     border:"solid 1px black",
-    overflowX: "hidden"
+    overflowX: "hidden",
+    position:"relative"
+}
+
+var navigationFunctionBar = {
+    width:"100%",
+    position:"absolute",
+    bottom:0,
+    display: "grid",
+    gridTemplateColumns:  "50% 50%",
+}
+
+var navigationBarDeleteArea = {
+    textAlign:"center"
+}
+
+var navigationBarLogout = {
+    textAlign:"center"
 }
 
 var navigationBarList= {
@@ -27,9 +44,14 @@ var noteEditor = {
     border:"solid 1px black"
 }
 
+
+
  export default {
     mainContainer,
     navigationBar,
+    navigationFunctionBar,
+    navigationBarDeleteArea,
+    navigationBarLogout,
     navigationBarList,
     navigationBarListItem,
     noteEditor
