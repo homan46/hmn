@@ -96,11 +96,12 @@ func NewDefaultAuth(bl business.BusinessLayer) echo.MiddlewareFunc {
 				return next(c)
 			} else {
 				//always allow access to login page
-				if c.Path() == "/login" {
+				if c.Path() == "/login" || c.Path() == "/api/v1/session" {
 					return next(c)
 				}
 				//no user_id means user is not login
 				return c.Redirect(http.StatusFound, "/login")
+
 			}
 
 		}

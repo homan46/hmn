@@ -8,11 +8,14 @@ class AuthService extends BaseService{
     
 
     logout(){
-        let url = this.getApiUrl() + `/login/`
-        return fetch(url,{
+        let url = this.getApiUrl() + `/session`
+        fetch(url,{
             method: 'DELETE',
             headers: this.getDefaultHeaders()
+        }).then(()=>{
+            window.location.reload(true)
         })
+        
     }
 }
 

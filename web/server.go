@@ -30,7 +30,7 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 		CookiePath:     "/",
 		Skipper: func(c echo.Context) bool {
 			return (c.Path() == "/login" && c.Request().Method == http.MethodPost) ||
-				(c.Path() == "/api/v1/login" && c.Request().Method == http.MethodPost)
+				(c.Path() == "/api/v1/session" && c.Request().Method == http.MethodPost)
 
 		},
 	}))

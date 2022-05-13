@@ -3,14 +3,12 @@ import { h, Component, render, createRef } from 'https://unpkg.com/preact?module
 import htm from 'https://unpkg.com/htm?module';
 import  'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js'
 
-import {AppViewModel, EditorState,EventBus} from './extra.js'
+
 import { noteService } from './service/service.js';
 import { authService } from './service/auth_service.js';
 import style from './style.js';
 
 const html = htm.bind(h);
-
-const bus = new EventBus()
 
 export class App extends Component {
     constructor (){
@@ -20,9 +18,6 @@ export class App extends Component {
         }
     }
 
-    componentDidMount(){
-        
-    }
 
     render (props,state){    
         return html`<${MainPage}  viewModel=${state.viewModel}/>`
@@ -110,11 +105,12 @@ class NavigationFunctionBar extends Component {
     render(props,state){
         return html`
         <div style=${style.navigationFunctionBar}>
-
-            <span style=${style.navigationBarDeleteArea}
+            <div style=${style.navigationBarDeleteArea}
                 onDragOver=${(e)=>{e.preventDefault()}} 
-                onDrop=${this.dropOnDeleteHandler}
-            >X</span>
+                onDrop=${this.dropOnDeleteHandler}>
+                <span>trash area</span>
+            </div>
+            
             <input type="button" value="Logout" onClick=${this.logoutHandler}/>
             
         </div>`   

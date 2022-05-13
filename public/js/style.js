@@ -23,7 +23,8 @@ var navigationFunctionBar = {
 }
 
 var navigationBarDeleteArea = {
-    textAlign:"center"
+    textAlign:"center",
+    backgroundColor:"gray"
 }
 
 var navigationBarLogout = {
