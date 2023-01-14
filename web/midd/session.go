@@ -2,8 +2,10 @@ package midd
 
 import (
 	"crypto/rand"
-	"log"
 	"strings"
+
+	"codeberg.org/rchan/hmn/log"
+	"go.uber.org/zap"
 
 	"codeberg.org/rchan/hmn/config"
 	"github.com/gorilla/securecookie"
@@ -21,7 +23,7 @@ func NewSess(conf *config.Config) echo.MiddlewareFunc {
 	} else {
 		_, err := rand.Read(key1)
 		if err != nil {
-			log.Fatalln(err)
+			log.ZLog.Panic("fail to setup sceret for cookie", zap.Error(err))
 		}
 	}
 

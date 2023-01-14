@@ -2,9 +2,10 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
+	"codeberg.org/rchan/hmn/log"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 var (
@@ -29,7 +30,6 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.ZLog.Panic("root command end with error", zap.Error(err))
 	}
 }

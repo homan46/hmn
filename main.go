@@ -1,18 +1,14 @@
 package main
 
 import (
-	"log"
+	"codeberg.org/rchan/hmn/log"
 
 	"codeberg.org/rchan/hmn/cli"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func init() {
-	log.SetFlags(log.Llongfile | log.LUTC)
-}
-
 func main() {
-
+	log.ZLog.Info("Application Started")
 	cli.Execute()
 
 	// conf := config.LoadConfig("./config.json")

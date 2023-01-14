@@ -2,7 +2,9 @@ package model
 
 import (
 	"encoding/base64"
-	"log"
+
+	"codeberg.org/rchan/hmn/log"
+	"go.uber.org/zap"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -28,8 +30,7 @@ func (u *User) GetPassword() string {
 func (u *User) SetPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println("check password error")
-		log.Println(err)
+		log.ZLog.Error("set password error(TODO: This log is not needed?)", zap.Error(err))
 		return err
 	}
 	str := base64.StdEncoding.EncodeToString(bytes)
@@ -40,8 +41,7 @@ func (u *User) SetPassword(password string) error {
 func (u *User) CheckPassword(password string) bool {
 	bytes, err := base64.StdEncoding.DecodeString(u.password)
 	if err != nil {
-		log.Println("check password error")
-		log.Println(err)
+		log.ZLog.Error("check password error", zap.Error(err))
 		return false
 	}
 	if bcrypt.CompareHashAndPassword(bytes, []byte(password)) != nil {

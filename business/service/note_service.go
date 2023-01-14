@@ -7,6 +7,7 @@ import (
 
 	"codeberg.org/rchan/hmn/constant"
 	"codeberg.org/rchan/hmn/helper"
+	"codeberg.org/rchan/hmn/log"
 	"codeberg.org/rchan/hmn/model"
 	"codeberg.org/rchan/hmn/repository"
 )
@@ -44,7 +45,7 @@ func NewNoteService(repo repository.RepositoryLayer) NoteService {
 
 // only title,content,parentID and index in note parameter is used
 func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
-
+	log.ZLog.Debug("NoteServiceImpl:AddNote")
 	//as long as parentID is valid, action should not fail
 	targetParent, err := ns.repo.Note().GetNote(c, note.GetParentID())
 	if err != nil {
@@ -80,17 +81,21 @@ func (ns *NoteServiceImpl) AddNote(c context.Context, note *model.Note) error {
 	return nil
 }
 func (ns *NoteServiceImpl) GetNote(c context.Context, id int) (*model.Note, error) {
+	log.ZLog.Debug("NoteServiceImpl:GetNote")
 	return ns.repo.Note().GetNote(c, id)
 }
 func (ns *NoteServiceImpl) GetAllNote(c context.Context) ([]*model.Note, error) {
+	log.ZLog.Debug("NoteServiceImpl:GetAllNote")
 	return ns.repo.Note().GetAllNote(c)
 }
 
 func (ns *NoteServiceImpl) GetNoteUnder(c context.Context, rootID int) ([]*model.Note, error) {
+	log.ZLog.Debug("NoteServiceImpl:GetNoteUnder")
 	return ns.repo.Note().GetNoteUnder(c, rootID, math.MaxInt)
 }
 
 func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error {
+	log.ZLog.Debug("NoteServiceImpl:UpdateNote")
 
 	oldValue, err := ns.repo.Note().GetNote(c, note.GetID())
 	if err != nil {
@@ -124,6 +129,7 @@ func (ns *NoteServiceImpl) UpdateNote(c context.Context, note *model.Note) error
 }
 
 func (ns *NoteServiceImpl) PatchNote(c context.Context, id int, input map[string]interface{}) error {
+	log.ZLog.Debug("NoteServiceImpl:PatchNote")
 
 	oldValue, err := ns.repo.Note().GetNote(c, id)
 	newValue := *oldValue
@@ -204,6 +210,7 @@ func (ns *NoteServiceImpl) PatchNote(c context.Context, id int, input map[string
 }
 
 func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
+	log.ZLog.Debug("NoteServiceImpl:DeleteNote")
 	if id == constant.RootNoteID {
 		return ErrInvalidActionOnRoot
 	}
@@ -211,6 +218,9 @@ func (ns *NoteServiceImpl) DeleteNote(c context.Context, id int) error {
 }
 
 func (ns *NoteServiceImpl) moveNote(c context.Context, id int, parentID int, index int) error {
+	log.ZLog.Debug("NoteServiceImpl:moveNote")
+
+	log.ZLog.Sugar().Debugf("move %d\t to parent %d\t%d\n", id, parentID, index)
 
 	//checking cannot move under itself
 	if id == parentID {
