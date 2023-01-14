@@ -134,8 +134,6 @@ func (ns *NoteServiceImpl) PatchNote(c context.Context, id int, input map[string
 		return err
 	}
 
-	//TODO: should  not move under its children
-
 	positionChange := false
 
 	for field, value := range input {
