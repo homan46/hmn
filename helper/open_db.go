@@ -2,9 +2,11 @@ package helper
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
+
+	"codeberg.org/rchan/hmn/log"
+	"go.uber.org/zap"
 
 	"codeberg.org/rchan/hmn/config"
 	"codeberg.org/rchan/hmn/constant"
@@ -16,7 +18,7 @@ func OpenDB(conf *config.Config) *sqlx.DB {
 
 	db, err := sqlx.Connect("sqlite3", conf.Storage.Path)
 	if err != nil {
-		log.Fatal(err)
+		log.ZLog.Panic("fail to open DB", zap.Error(err))
 	}
 
 	version := getDBVersion(db)
@@ -28,7 +30,7 @@ func OpenDB(conf *config.Config) *sqlx.DB {
 func updateDB(currentVersion int, db *sqlx.DB) {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal("update database fail")
+		log.ZLog.Panic("update database fail", zap.Error(err))
 	}
 
 	if currentVersion < 1 {
@@ -98,7 +100,7 @@ func updateDB(currentVersion int, db *sqlx.DB) {
 			`)
 
 		if err != nil {
-			log.Fatal(err)
+			log.ZLog.Panic("fail to setup DB schema", zap.Error(err))
 		}
 
 	}
@@ -113,12 +115,11 @@ func getDBVersion(db *sqlx.DB) (version int) {
 	var versionText = ""
 	err := db.Get(&versionText, "select value from system_config where key = ?", "schema.version")
 
-	log.Println(versionText)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such table") { //TODO:
 			return 0
 		}
-		log.Fatal(err)
+		log.ZLog.Panic("fail to get table version with unexpected cause", zap.Error(err))
 	}
 
 	ver, _ := strconv.Atoi(versionText)

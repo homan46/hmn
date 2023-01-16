@@ -1,11 +1,10 @@
 package cli
 
 import (
-	"fmt"
-
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/config"
 	"codeberg.org/rchan/hmn/helper"
+	"codeberg.org/rchan/hmn/log"
 
 	"codeberg.org/rchan/hmn/web"
 	"github.com/spf13/cobra"
@@ -22,7 +21,7 @@ var startServerCmd = &cobra.Command{
 
 		}
 
-		fmt.Printf("the config path is %s", configPath)
+		log.ZLog.Sugar().Infof("the config path is %s", configPath)
 
 		conf := config.LoadConfig(configPath)
 		db := helper.OpenDB(conf)
@@ -34,7 +33,5 @@ var startServerCmd = &cobra.Command{
 		} else {
 			server.Logger.Fatal(server.Start(conf.Server.ListenOn))
 		}
-
-		fmt.Println("start")
 	},
 }

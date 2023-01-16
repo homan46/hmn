@@ -19,6 +19,21 @@ func New(bl business.BusinessLayer, conf *config.Config) *echo.Echo {
 	e := echo.New()
 	e.Pre(middleware.RemoveTrailingSlash())
 
+	//e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+	//	LogURI:         true,
+	//	LogStatus:      true,
+	//	LogMethod:      true,
+	//	LogQueryParams: []string{"tree"},
+	//	LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+	//		log.ZLog.Debug("request",
+	//			zap.String("URI", v.URI),
+	//			zap.Int("status", v.Status),
+	//			zap.Strings("asd", v.QueryParams["tree"]),
+	//		)
+	//		return nil
+	//	},
+	//}))
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: conf.Server.AllowOrigins,
 	}))

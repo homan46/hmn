@@ -176,8 +176,8 @@ class NavigationNote extends Component {
             <span draggable="true"  
                 onDragStart=${this.dragHandler} 
                 onDragOver=${(e)=>{e.preventDefault()}} 
-                onDrop=${(e)=>{this.dropHandler(e,this.noteId,props.treeData.children.length)}}
-                onClick=${this.titleClickHandler}>${this.noteId}:${props.treeData.title}
+                onDrop=${(e)=>{this.dropHandler(e,props.treeData.id,props.treeData.children.length)}}
+                onClick=${this.titleClickHandler}>${props.treeData.id}:${props.treeData.title}
             </span>
             <span onClick=${this.addUnderHandler}>+</span>`
 

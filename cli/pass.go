@@ -2,9 +2,11 @@ package cli
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
+
+	"codeberg.org/rchan/hmn/log"
+	"go.uber.org/zap"
 
 	"codeberg.org/rchan/hmn/business"
 	"codeberg.org/rchan/hmn/config"
@@ -23,12 +25,12 @@ var resetPasswordCmd = &cobra.Command{
 		configPath, err := cmd.Flags().GetString("config")
 
 		if err != nil {
-			log.Fatal("fail to parse config path")
+			log.ZLog.Panic("fail to parse config path")
 		}
 
 		user, err := cmd.Flags().GetString("user")
 		if err != nil {
-			log.Fatal("no user provided")
+			log.ZLog.Panic("no user provided")
 		}
 
 		fmt.Printf("the config path is %s\n", configPath)
@@ -37,7 +39,7 @@ var resetPasswordCmd = &cobra.Command{
 
 		bytepw, err := term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
-			log.Fatal("read line error")
+			log.ZLog.Panic("read line error")
 		}
 
 		p1 := strings.TrimSpace(string(bytepw))
@@ -46,7 +48,7 @@ var resetPasswordCmd = &cobra.Command{
 
 		bytepw, err = term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
-			log.Fatal("read line error")
+			log.ZLog.Panic("read line error")
 		}
 
 		p2 := strings.TrimSpace(string(bytepw))
@@ -59,11 +61,11 @@ var resetPasswordCmd = &cobra.Command{
 
 			myContext, tx, err := business.GetContextForSystem()
 			if err != nil {
-				log.Fatalln(err)
+				log.ZLog.Panic("", zap.Error(err))
 			}
 			err = business.User().SetUserPassword(myContext, user, p2)
 			if err != nil {
-				log.Fatalln(err)
+				log.ZLog.Panic("", zap.Error(err))
 				tx.Rollback()
 			}
 			tx.Commit()

@@ -1,5 +1,8 @@
 # hmn
 
+> The development of this project is on pause for now,
+> there are some bug not yet fixed and the whole project is insecure and unpolished at the moment
+
 > !!This project is under development and is insecure and unpolished at the moment!!
 
 
@@ -8,15 +11,11 @@ hmn is hierarchical note taking application like [Trilium Notes](https://github.
 
 I have been using Trilium Notes for a few year but I found myself not using most of the feature it provide, so I would like to make an alternative that only contain the feature that I need. I am hoping that by writing this application in golang I can reduce its memory usage so that I can run other useful selfhost application on my respberry pi
 
-![screenshot of hmn](https://rchan.codeberg.page/hmn-demo/img/hmn-main.png)
+![screenshot of hmn](https://rchan.codeberg.page/hmn/img/hmn-main.png)
 
 ## Unimplemented/unpolished Feature
-- delete note 
-- web security like CORS and other (for starters, should make hmn do what [helmet](https://helmetjs.github.io/) do)
-- reset user password from cli
-- only has minimal validation/checking
+- security is not priority at current stage of development
 - error handling
-- authentication
 - efficiently send update to server
 - the entire front-end could be better
 
@@ -34,6 +33,7 @@ Directory | Description
 [`repository/`](repository/) | Data tier logic and helper to create new sqlite data store
 [`dto/`](dto/) | Dto for transmitting data with web controller or repository
 [`helper/`](helper/) | Helper function that used by different part of the application
+[`log/`](log/) | Provide a zap log instance for other module to call
 [`model/`](model/) | Business model that might have business logic in it
 [`public/`](public/) | Front-end code
 [`web/`](web/) | Web server, web controller and middleware
@@ -79,7 +79,10 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc  go build
 ```
 
 ### Set password for user
-when application is not running
+
+You need to setup the password for user at first run.
+
+When application is not running
 ```
 go run main.go reset -u <username>
 ```
