@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"codeberg.org/rchan/hmn/business"
+	"codeberg.org/rchan/hmn/constant"
 	"codeberg.org/rchan/hmn/dto"
+	"codeberg.org/rchan/hmn/log"
 	"codeberg.org/rchan/hmn/model"
 	"github.com/labstack/echo/v4"
 )
@@ -56,7 +58,16 @@ func (n *NoteController) AddNoteEndpoint(c echo.Context) error {
 	return c.JSON(http.StatusCreated, model)
 }
 
+// GetAllNoteEndpoint will return notes in ether list or tree form.
+// use can filter the output to only notes under a certain note.
+//
+// this api will accept the following query parameters
+// - rootId=<id>
+// - tree=1
+//
+
 func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
+	log.ZLog.Debug("NoteController:GetAllNoteEndpoint")
 	//handle rootId query parameter
 	rootIDStr := c.QueryParam("rootId")
 	rootIDStr = strings.Trim(rootIDStr, " ")
@@ -99,8 +110,15 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 	if useUnder {
 		notes, err = n.b.Note().GetNoteUnder(mycontext, rootID)
 	} else {
-		notes, err = n.b.Note().GetAllNote(mycontext)
+		//TODO: change this to use GetAllNote. GetNoteUnder is needed for now because
+		//      the tree building process currently requre input be sorted by depth
+		//      but output of GetAllNote is not
+
+		notes, err = n.b.Note().GetNoteUnder(mycontext, constant.RootNoteID)
+		//notes, err = n.b.Note().GetAllNote(mycontext)
 	}
+
+	log.ZLog.Sugar().Debugf("NoteController:GetAllNoteEndpoint note retrived count: %v", len(notes))
 
 	if err != nil {
 		tx.Rollback()
@@ -108,7 +126,9 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 	}
 
 	if useTree {
-		///TODO: worlking on this
+		///TODO: This section is quite buggy and cannot return the tree correctly
+
+		//map note to NoteTreeDto, which has a child field
 		dtos := make([]*dto.NoteEntityTreeDto, 0)
 		for _, n := range notes {
 			dto1 := dto.NoteEntityTreeDto{}
@@ -118,9 +138,12 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 			dtos = append(dtos, &dto1)
 		}
 
+		// loop over and over and attach their child to them,
+		// starting from the root note
 		treeRootNote := dtos[0]
 
-		//dtos is sorted by depth so just one go should be find
+		// dtos is sorted by depth so just one go should be find
+		// TODO: is it ACTUALLY sorted by depth tho?
 		for _, fromAll := range dtos {
 			for _, fromTree := range treeRootNote.Flatten() {
 				if fromTree.GetID() == fromAll.GetParentID() {
@@ -152,6 +175,7 @@ func (n *NoteController) GetAllNoteEndpoint(c echo.Context) error {
 }
 
 func (n *NoteController) GetNoteEndpoint(c echo.Context) error {
+	log.ZLog.Debug("NoteController:GetNoteEndpoint")
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
