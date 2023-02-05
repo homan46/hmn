@@ -6,6 +6,7 @@ import (
 
 	"codeberg.org/rchan/hmn/dto"
 	"codeberg.org/rchan/hmn/helper"
+	"codeberg.org/rchan/hmn/log"
 	"codeberg.org/rchan/hmn/model"
 	"github.com/jmoiron/sqlx"
 )
@@ -47,7 +48,10 @@ func (r SqlxNoteRepository) GetNote(c context.Context, id int) (*model.Note, err
 	return note, nil
 }
 
+// GetAllNote will return all note as a list.
+// the result is not ordered.
 func (r SqlxNoteRepository) GetAllNote(c context.Context) ([]*model.Note, error) {
+	log.ZLog.Debug("SqlxNoteRepository:GetAllNote")
 	_, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return nil, errors.New("get Context data fail")
@@ -72,6 +76,8 @@ func (r SqlxNoteRepository) GetAllNote(c context.Context) ([]*model.Note, error)
 }
 
 func (r SqlxNoteRepository) AddNote(c context.Context, note *model.Note) error {
+	log.ZLog.Sugar().Debugf("SqlxNoteRepository:AddNote %v\n", note)
+
 	userID, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return errors.New("get Context data fail")
@@ -97,6 +103,8 @@ func (r SqlxNoteRepository) AddNote(c context.Context, note *model.Note) error {
 	return nil
 }
 func (r SqlxNoteRepository) UpdateNote(c context.Context, note *model.Note) error {
+	log.ZLog.Sugar().Debugf("SqlxNoteRepository:UpdateNote %v\n", note)
+
 	userID, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return errors.New("get Context data fail")
@@ -115,6 +123,7 @@ func (r SqlxNoteRepository) UpdateNote(c context.Context, note *model.Note) erro
 	return nil
 }
 func (r SqlxNoteRepository) DeleteNote(c context.Context, id int) error {
+	log.ZLog.Debug("SqlxNoteRepository:DeleteNote")
 	_, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return errors.New("get Context data fail")
@@ -133,6 +142,7 @@ func (r SqlxNoteRepository) DeleteNote(c context.Context, id int) error {
 }
 
 func (r SqlxNoteRepository) GetNoteUnder(c context.Context, rootNoteID int, depth int) ([]*model.Note, error) {
+	log.ZLog.Debug("SqlxNoteRepository:GetNoteUnder")
 	_, tx, err := helper.ExtractContext(c)
 	if err != nil {
 		return nil, errors.New("get Context data fail")
