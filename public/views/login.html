@@ -4,28 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hmn</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
     <style>
         h1{
             text-align: center;
         }
-
+        
         #loginForm{
-            text-align: center;
+            margin: 0 auto;
+            width: 50%;
+            min-width: 300px;
         }
+
     </style>
 </head>
 <body>
     <h1>Login page</h1>
 
-    <form id="loginForm" method="post" action="/api/v1/session">
-        <label>Login Name:</label>
-        <input type="text" name="userName" />
-        <br/>
-        <label>Password:</label>
-        <input type="password" name="password" />
-        <br/>
-        <input type="submit" value="Login"/>
-        <input type="hidden" name="csrf" value="{{.csrf_token}}" />
+    <form id="loginForm" method="post" action="/api/v1/session" class="pure-form  pure-form-stacked ">
+        <fieldset>
+            <div class="pure-control-group">
+                <label>Login Name:</label>
+                <input type="text" name="userName" />
+            </div>
+
+            <div class="pure-control-group">
+                <label>Password:</label>
+                <input type="password" name="password" />
+            </div>
+            </br>
+            <div class="pure-controls">
+                <input type="submit" value="Login" class="pure-button pure-button-primary"/>
+            </div>
+            
+            <input type="hidden" name="csrf" value="{{.csrf_token}}" />
+        </fieldset>
     </form>
 </body>
 </html>
