@@ -30,7 +30,8 @@ class MainPage extends Component {
 
         this.state = {
             noteTree: null,
-            currentNoteId:1
+            currentNoteId:1,
+            currentNote:{id:null}
         }
     }
 
@@ -38,22 +39,29 @@ class MainPage extends Component {
 
         return html`
         <div class='main-container' style=${style.mainContainer}>
-            <${NavigationBar} openNoteHandler=${this.openNoteHandler}/>
-            <${NoteEditor} 
-                noteId=${state.currentNoteId}
-                 />
+            <${NavigationBar} openNoteHandler=${this.openNoteHandler}
+                updateNoteTitleHandler=${this.updateNoteTitleHandler} />
+            <${NoteEditor} note=${state.currentNote} />
         </div>`
     }
 
     //
     // Callback for Note editor
     //
-    openNoteHandler = (noteId)=>{
-        
-        this.setState({currentNoteId:noteId})
+    openNoteHandler = (note)=>{
+        //this.setState({currentNoteId:noteId})
+        this.setState({currentNote:note});
     }
 
-    
+    updateNoteTitleHandler = (note)=>{
+        //this.setState({currentNoteId:noteId})
+        if(note.id == this.state.currentNote.id) {
+            var temp = this.state.currentNote
+            temp.title = note.title;
+            this.setState({currentNote:temp});
+        }
+        
+    }
 }
 
 
@@ -88,6 +96,7 @@ class NavigationBar extends Component {
                 <${NavigationNote} 
                     openNoteHandler=${props.openNoteHandler} 
                     refreshHandler=${this.refreshHandler}
+                    updateNoteTitleHandler=${props.updateNoteTitleHandler}
                     treeData=${state.treeData}/>
                     <${NavigationFunctionBar} refreshHandler=${this.refreshHandler}/>
             </div>`
@@ -138,13 +147,14 @@ class NavigationNote extends Component {
 
     constructor(props){
         super()
-        this.noteId = props.treeData.id
-        this.title = props.treeData.title
-        this.content = props.treeData.content
-        this.parentId = props.treeData.parentId
-        this.index = props.treeData.index
 
         this.state = {
+            noteId: props.treeData.id,
+            title : props.treeData.title,
+            content : props.treeData.content,
+            parentId : props.treeData.parentId,
+            index : props.treeData.index,
+
             showNewNoteInput:false,
             enableTitleEditing:false
         }
@@ -153,9 +163,7 @@ class NavigationNote extends Component {
     }
 
     render(props,state) {
-
-
-        var child = html``
+        var child = html``;
         if (props.treeData.children != null) {
             child = props.treeData.children.map((val)=>{
                 return html`
@@ -164,35 +172,42 @@ class NavigationNote extends Component {
                     onDrop=${(e)=>{this.dropHandler(e,val.parentId,val.index)}}
                 />
                 
-                <${NavigationNote} 
+                <${NavigationNote}
                     refreshHandler=${this.props.refreshHandler} 
                     openNoteHandler=${props.openNoteHandler} 
+                    updateNoteTitleHandler=${props.updateNoteTitleHandler}
                     treeData=${val}/>
                 `
             })
         }
         
-        var titleSection = titleSection = html`
-            <span draggable="true"  
-                onDragStart=${this.dragHandler} 
-                onDragOver=${(e)=>{e.preventDefault()}} 
-                onDrop=${(e)=>{this.dropHandler(e,props.treeData.id,props.treeData.children.length)}}
-                onClick=${this.titleClickHandler}>${props.treeData.id}:${props.treeData.title}
-            </span>
-            <span onClick=${this.addUnderHandler}>+</span>`
+        var titleSection = null;
+        
 
         if (state.enableTitleEditing){
-            titleSection = html`<input type="text" ref=${ dom => {
-                if(dom != null){
-                    dom.focus()} 
+            console.log(`this.value is ${props.treeData.title}`);
+            titleSection = html`
+                <input type="text" ref=${ dom => {
+                    if(dom != null){
+                        dom.focus()
+                    } 
                     this.titleEditor = dom
-                }
-            }  onBlur=${this.titleBlurHandler} value=${this.title}/>`
+                }}  
+                onBlur=${this.titleBlurHandler} value=${props.treeData.title}/>`
+        }else{
+            titleSection = html`
+                <span draggable="true"  
+                    onDragStart=${this.dragHandler} 
+                    onDragOver=${(e)=>{e.preventDefault()}} 
+                    onDrop=${(e)=>{this.dropHandler(e,props.treeData.id,props.treeData.children.length)}}
+                    onClick=${this.titleClickHandler}>${props.treeData.id}:${props.treeData.title}
+                </span>
+                <span onClick=${this.addUnderHandler}>+</span>`
         }
         
         return html`
         <li  style=${style.navigationBarListItem}>
-            ${titleSection}    
+            ${titleSection}
             <ul class="children" style=${style.navigationBarList}>
                 ${child}
             </ul>
@@ -203,7 +218,7 @@ class NavigationNote extends Component {
     titleClickHandler = (event)=>{
         if(event.detail === 1) {
             this.singleClickTimer = setTimeout(() => {
-                this.props.openNoteHandler(this.noteId)
+                this.props.openNoteHandler(this.props.treeData)
             }, 300);
         }else if (event.detail === 2){
             clearTimeout(this.singleClickTimer);
@@ -220,27 +235,34 @@ class NavigationNote extends Component {
     titleBlurHandler =() => {
         var changed = false
         
-        if (this.titleEditor.value != this.title){
+        if (this.titleEditor.value != this.state.title){
             changed = true
         }
 
+        if(changed) {
+            var newTitle = this.titleEditor.value;
+            noteService.updateTitle(this.state.noteId,this.titleEditor.value).then(()=>{
+                this.props.refreshHandler();
+                
+                this.props.updateNoteTitleHandler({
+                    id:this.state.noteId,
+                    title:newTitle
+                });
+            })
+        }
         this.setState({enableTitleEditing:false})
-        noteService.updateTitle(this.noteId,this.titleEditor.value).then(()=>{
-            this.props.refreshHandler()
-        })
-        
     }
 
     addUnderHandler = () => {
-        noteService.createNote(this.noteId,"new title","").then(()=>{
+        noteService.createNote(this.state.noteId,"new title","").then(()=>{
             this.props.refreshHandler()
         })
     }
 
     dragHandler = (e) => {
         //set noteId of the dragged note 
-        console.log(this.noteId)
-        e.dataTransfer.setData("noteId",this.noteId)
+        console.log(this.state.noteId)
+        e.dataTransfer.setData("noteId",this.state.noteId)
     }
 
     dropHandler = (e,parentId,index) => {
@@ -266,16 +288,21 @@ class NoteEditor extends Component {
 
     initializateEditor(){
         this.simplemde = new SimpleMDE({ element: this.textAreaRef.current });
-        this.downloadContent()
+
+        //assume data is not ready when first initialize
+        //this.downloadContent()
         this.simplemde.codemirror.on("change",(instance,change)=>{
             this.dirty=true
             this.uploadContent()
         })
+
+
+        this.simplemde.codemirror.options.readOnly = true
+        this.titleRef.current.innerHTML = "please select a note to edit"
     }
 
     downloadContent(){
-        noteService.getNote(this.props.noteId).then(json => {
-            console.log(json)
+        noteService.getNote(this.props.note.id).then(json => {
             this.simplemde.value(json.content)
             this.titleRef.current.innerHTML = json.title
         })
@@ -283,14 +310,17 @@ class NoteEditor extends Component {
 
     uploadContent(){
         if(this.dirty) {
-            noteService.updateContent(this.props.noteId,this.simplemde.value())
-
+            noteService.updateContent(this.props.note.id,this.simplemde.value())
             this.dirty = false
         }
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        noteService.getNote(nextProps.noteId).then(json => {
+        if(nextProps.note.id > 0) { //TODO: improve valid noteId checking
+            this.simplemde.codemirror.options.readOnly = false
+        }
+        
+        noteService.getNote(nextProps.note.id).then(json => {
             this.simplemde.value(json.content)
             this.titleRef.current.innerHTML = json.title
         })
