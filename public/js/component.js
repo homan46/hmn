@@ -30,7 +30,8 @@ class MainPage extends Component {
 
         this.state = {
             noteTree: null,
-            currentNoteId:1
+            currentNoteId:1,
+            currentNote:{id:null}
         }
     }
 
@@ -38,22 +39,29 @@ class MainPage extends Component {
 
         return html`
         <div class='main-container' style=${style.mainContainer}>
-            <${NavigationBar} openNoteHandler=${this.openNoteHandler}/>
-            <${NoteEditor} 
-                noteId=${state.currentNoteId}
-                 />
+            <${NavigationBar} openNoteHandler=${this.openNoteHandler}
+                updateNoteTitleHandler=${this.updateNoteTitleHandler} />
+            <${NoteEditor} note=${state.currentNote} />
         </div>`
     }
 
     //
     // Callback for Note editor
     //
-    openNoteHandler = (noteId)=>{
-        
-        this.setState({currentNoteId:noteId})
+    openNoteHandler = (note)=>{
+        //this.setState({currentNoteId:noteId})
+        this.setState({currentNote:note});
     }
 
-    
+    updateNoteTitleHandler = (note)=>{
+        //this.setState({currentNoteId:noteId})
+        if(note.id == this.state.currentNote.id) {
+            var temp = this.state.currentNote
+            temp.title = note.title;
+            this.setState({currentNote:temp});
+        }
+        
+    }
 }
 
 
@@ -88,6 +96,7 @@ class NavigationBar extends Component {
                 <${NavigationNote} 
                     openNoteHandler=${props.openNoteHandler} 
                     refreshHandler=${this.refreshHandler}
+                    updateNoteTitleHandler=${props.updateNoteTitleHandler}
                     treeData=${state.treeData}/>
                     <${NavigationFunctionBar} refreshHandler=${this.refreshHandler}/>
             </div>`
@@ -166,6 +175,7 @@ class NavigationNote extends Component {
                 <${NavigationNote}
                     refreshHandler=${this.props.refreshHandler} 
                     openNoteHandler=${props.openNoteHandler} 
+                    updateNoteTitleHandler=${props.updateNoteTitleHandler}
                     treeData=${val}/>
                 `
             })
@@ -208,7 +218,7 @@ class NavigationNote extends Component {
     titleClickHandler = (event)=>{
         if(event.detail === 1) {
             this.singleClickTimer = setTimeout(() => {
-                this.props.openNoteHandler(this.state.noteId)
+                this.props.openNoteHandler(this.props.treeData)
             }, 300);
         }else if (event.detail === 2){
             clearTimeout(this.singleClickTimer);
@@ -230,8 +240,14 @@ class NavigationNote extends Component {
         }
 
         if(changed) {
+            var newTitle = this.titleEditor.value;
             noteService.updateTitle(this.state.noteId,this.titleEditor.value).then(()=>{
-                this.props.refreshHandler()
+                this.props.refreshHandler();
+                
+                this.props.updateNoteTitleHandler({
+                    id:this.state.noteId,
+                    title:newTitle
+                });
             })
         }
         this.setState({enableTitleEditing:false})
@@ -272,16 +288,21 @@ class NoteEditor extends Component {
 
     initializateEditor(){
         this.simplemde = new SimpleMDE({ element: this.textAreaRef.current });
-        this.downloadContent()
+
+        //assume data is not ready when first initialize
+        //this.downloadContent()
         this.simplemde.codemirror.on("change",(instance,change)=>{
             this.dirty=true
             this.uploadContent()
         })
+
+
+        this.simplemde.codemirror.options.readOnly = true
+        this.titleRef.current.innerHTML = "please select a note to edit"
     }
 
     downloadContent(){
-        noteService.getNote(this.props.noteId).then(json => {
-            console.log(json)
+        noteService.getNote(this.props.note.id).then(json => {
             this.simplemde.value(json.content)
             this.titleRef.current.innerHTML = json.title
         })
@@ -289,14 +310,17 @@ class NoteEditor extends Component {
 
     uploadContent(){
         if(this.dirty) {
-            noteService.updateContent(this.props.noteId,this.simplemde.value())
-
+            noteService.updateContent(this.props.note.id,this.simplemde.value())
             this.dirty = false
         }
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        noteService.getNote(nextProps.noteId).then(json => {
+        if(nextProps.note.id > 0) { //TODO: improve valid noteId checking
+            this.simplemde.codemirror.options.readOnly = false
+        }
+        
+        noteService.getNote(nextProps.note.id).then(json => {
             this.simplemde.value(json.content)
             this.titleRef.current.innerHTML = json.title
         })
